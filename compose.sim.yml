@@ -1,0 +1,256 @@
+networks:
+  default:
+    name: ${PILS_NETWORK_NAME}
+    ipam:
+      driver: default
+      config:
+        - subnet: ${PILS_NETWORK_SUBNET}
+
+services:
+  px4-env:
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # ------------STATIC VALUE DO NOT MODIFY-------------
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    image: ${PX4_ENV_IMAGE}
+    container_name: ${PX4_ENV_CONTAINER}
+    environment:
+      DISPLAY:                    ${PILS_DISPLAY}
+      WAYLAND_DISPLAY:            ${PILS_WAYLAND_DISPLAY}
+      XDG_RUNTIME_DIR:            ${XDG_RUNTIME_DIR}
+      GAZEBO_CLASSIC_IP:          ${GAZEBO_CLASSIC_IP}
+      ROS2_IP:                    ${ROS2_IP}
+      QGC_IP:                     ${QGC_IP}
+    volumes:
+      - ${X11_SOCKET_DIR}:${X11_SOCKET_DIR}
+      - ${PILS_PULSEAUDIO_DIR}:/run/user/1000/pulse
+      - ${PX4_WORKSPACE}:/home/user/workspace
+    hostname: ${PX4_ENV_CONTAINER}
+    entrypoint: ${PX4_RUN_COMMAND}
+    working_dir: /home/user/workspace
+    profiles: ["px4","gazebo-classic-PILS","gazebo-classic-airsim-PILS"]
+    env_file:
+      # - /home/merlin/Documents/A4VAI-PILS/envs/common.env
+      # - /home/merlin/Documents/A4VAI-PILS/envs/px4.env
+      - path: ./envs/common.env
+        required: true
+      - path: ./envs/px4.env
+        required: true
+    networks:
+      default:
+        ipv4_address: ${PX4_IP}
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    #
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # --UNCOMMENT TO ENABLE AMD/INTEL GPU ACCELERATION---
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    devices:
+      - ${DRI_DEVICE_CARD}
+    privileged: true
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    #
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # ----UNCOMMENT TO ENABLE NVIDIA GPU ACCELERATION----
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+  gz-sim:
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # ------------STATIC VALUE DO NOT MODIFY-------------
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    image: ${GAZEBO_CLASSIC_ENV_IMAGE}
+    container_name: ${GAZEBO_CLASSIC_ENV_CONTAINER}
+    environment:
+      DISPLAY:                    ${PILS_DISPLAY}
+      WAYLAND_DISPLAY:            ${PILS_WAYLAND_DISPLAY}
+      XDG_RUNTIME_DIR:            ${XDG_RUNTIME_DIR}
+    volumes:
+      - ${X11_SOCKET_DIR}:${X11_SOCKET_DIR}
+      - ${PILS_PULSEAUDIO_DIR}:/run/user/1000/pulse
+      - ${GAZEBO_CLASSIC_WORKSPACE}:/home/user/workspace/gazebo
+      - ${PX4_WORKSPACE}:/home/user/workspace/px4
+    hostname: ${GAZEBO_CLASSIC_ENV_CONTAINER}
+    entrypoint: ${GAZEBO_CLASSIC_RUN_COMMAND}
+    working_dir: /home/user/workspace
+    profiles: ["gazebo-classic","gazebo-classic-PILS"]
+    env_file:
+      - path: ./envs/common.env
+        required: true
+      - path: ./envs/gazebo-classic.env
+        required: true
+      - path: ./envs/px4.env
+        required: true
+    networks:
+      default:
+        ipv4_address: ${GAZEBO_CLASSIC_IP}
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    #
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # --UNCOMMENT TO ENABLE AMD/INTEL GPU ACCELERATION---
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    devices:
+      - ${DRI_DEVICE_CARD}
+    privileged: true
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # ----UNCOMMENT TO ENABLE NVIDIA GPU ACCELERATION----
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+  gz-sim-airsim:
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # ------------STATIC VALUE DO NOT MODIFY-------------
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    image: ${GAZEBO_CLASSIC_ENV_IMAGE}
+    container_name: ${GAZEBO_CLASSIC_ENV_CONTAINER}
+    environment:
+      DISPLAY:                    ${PILS_DISPLAY}
+      WAYLAND_DISPLAY:            ${PILS_WAYLAND_DISPLAY}
+      XDG_RUNTIME_DIR:            ${XDG_RUNTIME_DIR}
+      AIRSIM_IP:                  ${AIRSIM_IP}
+    volumes:
+      - ${X11_SOCKET_DIR}:${X11_SOCKET_DIR}
+      - ${PILS_PULSEAUDIO_DIR}:/run/user/1000/pulse
+      - ${GAZEBO_CLASSIC_WORKSPACE}:/home/user/workspace/gazebo
+      - ${PX4_WORKSPACE}:/home/user/workspace/px4
+      - ${AIRSIM_WORKSPACE}:/home/user/workspace/airsim
+    hostname: ${GAZEBO_CLASSIC_ENV_CONTAINER}
+    entrypoint: ${GAZEBO_CLASSIC_RUN_COMMAND}
+    working_dir: /home/user/workspace
+    profiles: ["gazebo-classic-airsim-PILS"]
+    env_file:
+      - path: ./envs/common.env
+        required: true
+      - path: ./envs/gazebo-classic.env
+        required: true
+      - path: ./envs/px4.env
+        required: true
+    networks:
+      default:
+        ipv4_address: ${GAZEBO_CLASSIC_IP}
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    #
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # --UNCOMMENT TO ENABLE AMD/INTEL GPU ACCELERATION---
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    devices:
+      - ${DRI_DEVICE_CARD}
+    privileged: true
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # ----UNCOMMENT TO ENABLE NVIDIA GPU ACCELERATION----
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+  airsim-binary:
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # ------------STATIC VALUE DO NOT MODIFY-------------
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    image:            ${AIRSIM_BINARY_IMAGE}
+    container_name:   ${AIRSIM_BINARY_CONTAINER}
+    user:             root
+    environment:
+      DISPLAY:                    ${PILS_DISPLAY}
+      WAYLAND_DISPLAY:            ${PILS_WAYLAND_DISPLAY}
+      XDG_RUNTIME_DIR:            ${XDG_RUNTIME_DIR}
+    volumes:
+      - ${X11_SOCKET_DIR}:${X11_SOCKET_DIR}
+      - ${PILS_PULSEAUDIO_DIR}:/run/user/1000/pulse
+      - ${AIRSIM_WORKSPACE}:/home/ue4/workspace
+    hostname: ${AIRSIM_BINARY_CONTAINER}
+    entrypoint: ${AIRSIM_RUN_COMMAND}
+    working_dir: /home/ue4/workspace
+    profiles: ["airsim","gazebo-classic-airsim-PILS"]
+    env_file:
+      - path: ./envs/common.env
+        required: true
+      - path: ./envs/airsim.env
+        required: true
+    networks:
+      default:
+        ipv4_address: ${AIRSIM_IP}
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    #
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # --UNCOMMENT TO ENABLE AMD/INTEL GPU ACCELERATION---
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    devices:
+      - ${DRI_DEVICE_CARD}
+    privileged: true
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    #
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # ----UNCOMMENT TO ENABLE NVIDIA GPU ACCELERATION----
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+  qgc-app:
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # ------------STATIC VALUE DO NOT MODIFY-------------
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    image: ${QGC_ENV_IMAGE}
+    container_name: ${QGC_ENV_CONTAINER}
+    environment:
+      DISPLAY:                    ${PILS_DISPLAY}
+      WAYLAND_DISPLAY:            ${PILS_WAYLAND_DISPLAY}
+      XDG_RUNTIME_DIR:            ${XDG_RUNTIME_DIR}
+    volumes:
+      - ${X11_SOCKET_DIR}:${X11_SOCKET_DIR}
+      - ${PILS_PULSEAUDIO_DIR}:/run/user/1000/pulse
+      - ${QGC_WORKSPACE}:/home/user/workspace
+    hostname: ${QGC_ENV_CONTAINER}
+    entrypoint: ${QGC_RUN_COMMAND}
+    working_dir: /home/user/workspace
+    profiles: ["qgc","gazebo-classic-PILS","gazebo-classic-airsim-PILS"]
+    env_file:
+      - path: ./envs/common.env
+        required: true
+      - path: ./envs/qgc.env
+        required: true
+    networks:
+      default:
+        ipv4_address: ${QGC_IP}
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    #
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # --UNCOMMENT TO ENABLE AMD/INTEL GPU ACCELERATION---
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    devices:
+      - ${DRI_DEVICE_CARD}
+      - ${DRI_DEVICE_RENDER}
+    privileged: true
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    #
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # ----UNCOMMENT TO ENABLE NVIDIA GPU ACCELERATION----
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
