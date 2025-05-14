@@ -8,7 +8,7 @@
 ```bash
 cd ~/
 sudo apt update && sudo apt install -y git
-git clone https://github.com/kestr31/PX4-PILS-Runner.git
+git clone https://github.com/jociiiii/PX4-PILS-Runner.git
 ```
 
 ## 2. PX4-Autopilot 소스 클론과 빌드
