@@ -42,6 +42,9 @@ mv \
     PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_run.bak \
     PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_run.sh
 
+# SET THE PERMISSIONS OF THE PX4-Autopilot DIRECTORY
+chmod -R o+rwx $(dirname "$BASE_DIR")/PX4-Autopilot
+
 EchoGreen "[$(basename $0)] PX4-sitl BUILT SUCCESSFULLY."
 EchoBoxLine
 
