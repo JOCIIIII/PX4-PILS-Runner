@@ -27,7 +27,7 @@ services:
     hostname: ${PX4_ENV_CONTAINER}
     entrypoint: ${PX4_RUN_COMMAND}
     working_dir: /home/user/workspace
-    profiles: ["px4","gazebo-classic-PILS","gazebo-classic-airsim-PILS"]
+    profiles: ["px4","gazebo-classic-pils","gazebo-classic-airsim-pils"]
     env_file:
       # - /home/merlin/Documents/A4VAI-PILS/envs/common.env
       # - /home/merlin/Documents/A4VAI-PILS/envs/px4.env
@@ -77,7 +77,7 @@ services:
     hostname: ${GAZEBO_CLASSIC_ENV_CONTAINER}
     entrypoint: ${GAZEBO_CLASSIC_RUN_COMMAND}
     working_dir: /home/user/workspace
-    profiles: ["gazebo-classic","gazebo-classic-PILS"]
+    profiles: ["gazebo-classic","gazebo-classic-pils"]
     env_file:
       - path: ./envs/common.env
         required: true
@@ -127,7 +127,7 @@ services:
     hostname: ${GAZEBO_CLASSIC_ENV_CONTAINER}
     entrypoint: ${GAZEBO_CLASSIC_RUN_COMMAND}
     working_dir: /home/user/workspace
-    profiles: ["gazebo-classic-airsim-PILS"]
+    profiles: ["gazebo-classic-airsim-pils"]
     env_file:
       - path: ./envs/common.env
         required: true
@@ -175,7 +175,7 @@ services:
     hostname: ${AIRSIM_BINARY_CONTAINER}
     entrypoint: ${AIRSIM_RUN_COMMAND}
     working_dir: /home/ue4/workspace
-    profiles: ["airsim","gazebo-classic-airsim-PILS"]
+    profiles: ["airsim","gazebo-classic-airsim-pils"]
     env_file:
       - path: ./envs/common.env
         required: true
@@ -227,11 +227,11 @@ services:
     hostname: ${ROS2_ENV_CONTAINER}
     entrypoint: ${ROS2_RUN_COMMAND}
     working_dir: /home/user/workspace
-    profiles: ["gazebo-classic-airsim-pils"]
+    profiles: ["ros2","gazebo-classic-airsim-pils"]
     env_file:
       - path: ./envs/common.env
         required: true
-      - path: ./envs/ros2.env
+      - path: ./envs/ros2.sim.env
         required: true
     networks:
       default:
@@ -274,7 +274,7 @@ services:
     hostname: ${QGC_ENV_CONTAINER}
     entrypoint: ${QGC_RUN_COMMAND}
     working_dir: /home/user/workspace
-    profiles: ["qgc","gazebo-classic-PILS","gazebo-classic-airsim-PILS"]
+    profiles: ["qgc","gazebo-classic-pils","gazebo-classic-airsim-pils"]
     env_file:
       - path: ./envs/common.env
         required: true

@@ -22,7 +22,7 @@ services:
     env_file:
       - path: ./envs/common.env
         required: true
-      - path: ./envs/ros2.env
+      - path: ./envs/ros2.onboard.env
         required: true
     networks:
       default:
