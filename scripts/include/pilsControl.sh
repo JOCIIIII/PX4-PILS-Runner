@@ -56,7 +56,7 @@ SimBasicSetup() {
 
   # SET ROS2_WORKSPACE TO THE .env FILE
     EchoGreen "[$(basename "$0")] SETTING ROS2_WORKSPACE AS ${ROS2_WORKSPACE}"
-    sed -i "s~ROS2_WORKSPACE=\"\"~ROS2_WORKSPACE=${ROS2_WORKSPACE}~" ${PILS_ENV_DIR}/ros2.env
+    sed -i "s~ROS2_WORKSPACE=\"\"~ROS2_WORKSPACE=${ROS2_WORKSPACE}~" ${PILS_ENV_DIR}/ros2.sim.env
 
     # SET QGC_WORKSPACE TO THE .env FILE
     EchoGreen "[$(basename "$0")] SETTING QGC_WORKSPACE AS ${QGC_WORKSPACE}"
@@ -115,7 +115,7 @@ SimBasicSetup() {
     sed -i "s~PX4_IP=\"\"~PX4_IP=\"${PX4_IP}\"~" ${PILS_ENV_DIR}/px4.env
     sed -i "s~GAZEBO_CLASSIC_IP=\"\"~GAZEBO_CLASSIC_IP=\"${GAZEBO_CLASSIC_IP}\"~" ${PILS_ENV_DIR}/gazebo-classic.env
     sed -i "s~AIRSIM_IP=\"\"~AIRSIM_IP=\"${AIRSIM_IP}\"~" ${PILS_ENV_DIR}/airsim.env
-    sed -i "s~ROS2_IP=\"\"~ROS2_IP=\"${ROS2_IP}\"~" ${PILS_ENV_DIR}/ros2.env
+    sed -i "s~ROS2_IP=\"\"~ROS2_IP=\"${ROS2_IP}\"~" ${PILS_ENV_DIR}/ros2.sim.env
     sed -i "s~QGC_IP=\"\"~QGC_IP=\"${QGC_IP}\"~" ${PILS_ENV_DIR}/qgc.env
 
     EchoGreen "[$(basename "$0")] *   PX4 CONTAINER IP: ${PX4_IP}"
@@ -169,7 +169,7 @@ OnboardBasicSetup() {
 
     # SET ROS2_WORKSPACE TO THE .env FILE
     EchoGreen "[$(basename "$0")] SETTING ROS2_WORKSPACE AS ${ROS2_WORKSPACE}"
-    sed -i "s~ROS2_WORKSPACE=\"\"~ROS2_WORKSPACE=${ROS2_WORKSPACE}~" ${PILS_ENV_DIR}/ros2.env
+    sed -i "s~ROS2_WORKSPACE=\"\"~ROS2_WORKSPACE=${ROS2_WORKSPACE}~" ${PILS_ENV_DIR}/ros2.onboard.env
 
     EchoBoxLine
 
@@ -351,7 +351,7 @@ SetRunModeGazeboClassic() {
     # LOAD THE ENVIRONMENT VARIABLES
     source ${PILS_ENV_DIR}/gazebo-classic.env
 
-    if [ "${RUN_MODE}x" == "gazebo-classic-PILSx" ]; then
+    if [ "${RUN_MODE}x" == "gazebo-classic-sitlx" ]; then
         RUN_SCRIPT="sitl-px4.sh"
         # GAEZBO_HEADLESS=false
 
@@ -364,7 +364,7 @@ SetRunModeGazeboClassic() {
             ENABLE_HEADLESS_MODE=1
         fi 
 
-    elif [ "${RUN_MODE}x" == "gazebo-classic-airsim-PILSx" ]; then
+    elif [ "${RUN_MODE}x" == "gazebo-classic-airsim-sitlx" ]; then
         RUN_SCRIPT="sitl-px4.sh"
 
         if [ -z "${GAEZBO_HEADLESS}" ]; then
@@ -423,15 +423,15 @@ SetRunModeAirSim() {
     # >>>---------------------------------------------------------
     # INPUTS:
     # $1: $0 (MAIN SCRIPT RUNNING THE FUNCTION)
-    # $2: RUN MODE (gazebo-classic-airsim-PILS, auto, .sh)
+    # $2: RUN MODE (gazebo-classic-airsim-pils, auto, .sh)
     # ------------------------------------------------------------
     # EXAMPLE:
-    # SetRunModeAirSim $0 gazebo-classic-airsim-PILS
+    # SetRunModeAirSim $0 gazebo-classic-airsim-pils
     # ------------------------------------------------------------
     SCRIPT_NAME=$(basename "$1")
     RUN_MODE=$2
 
-    if [ "${RUN_MODE}x" == "gazebo-classic-airsim-PILSx" ]; then
+    if [ "${RUN_MODE}x" == "gazebo-classic-airsim-pilsx" ]; then
         RUN_SCRIPT="auto.sh"
     elif [ "${RUN_MODE}x" == "autox" ]; then
         EchoGreen "[${SCRIPT_NAME}] RUNNING AIRSIM CONTAINER IN AUTO MODE"
@@ -467,12 +467,13 @@ SetRunModeROS2() {
     # SetRunModeROS2 $0 debug
     # ------------------------------------------------------------
     SCRIPT_NAME=$(basename "$1")
-    RUN_MODE=$2
+    TARGET_MODE=$2
+    RUN_MODE=$3
 
-    if [ "${RUN_MODE}x" == "gazebo-classic-PILSx" ]; then
+    if [ "${RUN_MODE}x" == "gazebo-classic-pilsx" ]; then
         RUN_SCRIPT="debug.sh"
-    elif [ "${RUN_MODE}x" == "gazebo-classic-airsim-PILSx" ]; then
-        RUN_SCRIPT="PILS-px4-airsim.sh"
+    elif [ "${RUN_MODE}x" == "gazebo-classic-airsim-pilsx" ]; then
+        RUN_SCRIPT="sitl-px4-airsim.sh"
     elif [[ "${RUN_MODE}x" == "build"*"x" ]]; then
         EchoGreen "[${SCRIPT_NAME}] BUILDING ROS2 PACKAGES INSIDE THE CONTAINER."
         EchoGreen "[${SCRIPT_NAME}] CONTAINER WILL BE STOPPED AFTER THE BUILD PROCESS."
@@ -503,9 +504,17 @@ SetRunModeROS2() {
 
     # IF BUILD_TARGETS IS PRESENT
     if [ -z "${BUILD_TARGETS}" ]; then
-        sed -i "s~ROS2_RUN_COMMAND=\"\"~ROS2_RUN_COMMAND=\'bash -c \"/home/user/workspace/ros2/scripts/${RUN_SCRIPT}\"\'~g" ${PILS_ENV_DIR}/ros2.env
+        if [ "${TARGET_MODE}x" == "simx" ]; then
+            sed -i "s~ROS2_RUN_COMMAND=\"\"~ROS2_RUN_COMMAND=\'bash -c \"/home/user/workspace/ros2/scripts/${RUN_SCRIPT}\"\'~g" ${PILS_ENV_DIR}/ros2.sim.env
+        elif [ "${TARGET_MODE}x" == "onboardx" ]; then
+            sed -i "s~ROS2_RUN_COMMAND=\"\"~ROS2_RUN_COMMAND=\'bash -c \"/home/user/workspace/ros2/scripts/${RUN_SCRIPT}\"\'~g" ${PILS_ENV_DIR}/ros2.onboard.env
+        fi
     else
-        sed -i "s~ROS2_RUN_COMMAND=\"\"~ROS2_RUN_COMMAND=\'bash -c \"/home/user/workspace/ros2/scripts/${RUN_SCRIPT} ${BUILD_TARGETS}\"\'~g" ${PILS_ENV_DIR}/ros2.env
+        if [ "${TARGET_MODE}x" == "simx" ]; then
+            sed -i "s~ROS2_RUN_COMMAND=\"\"~ROS2_RUN_COMMAND=\'bash -c \"/home/user/workspace/ros2/scripts/${RUN_SCRIPT} ${BUILD_TARGETS}\"\'~g" ${PILS_ENV_DIR}/ros2.sim.env
+        elif [ "${TARGET_MODE}x" == "onboardx" ]; then
+            sed -i "s~ROS2_RUN_COMMAND=\"\"~ROS2_RUN_COMMAND=\'bash -c \"/home/user/workspace/ros2/scripts/${RUN_SCRIPT} ${BUILD_TARGETS}\"\'~g" ${PILS_ENV_DIR}/ros2.onboard.env
+        fi
     fi
 }
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
