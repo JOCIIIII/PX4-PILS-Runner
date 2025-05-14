@@ -21,8 +21,8 @@ GAZEBO_WORKSPACE=/home/user/workspace/gazebo
 
 PX4_SOURCE_DIR=${PX4_WORKSPACE}/PX4-Autopilot
 PX4_SIM_DIR=${PX4_WORKSPACE}/PX4-Autopilot/Tools/simulation
-PX4_BUILD_DIR=${PX4_WORKSPACE}/PX4-Autopilot/build/px4_PILS_default
-PX4_BINARY_DIR=${PX4_WORKSPACE}/PX4-Autopilot/build/px4_PILS_default/bin
+PX4_BUILD_DIR=${PX4_WORKSPACE}/PX4-Autopilot/build/px4_sitl_default
+PX4_BINARY_DIR=${PX4_WORKSPACE}/PX4-Autopilot/build/px4_sitl_default/bin
 
 source /usr/share/gazebo/setup.bash
 export GAZEBO_RESOURCE_PATH=${GAZEBO_RESOURCE_PATH}:${GAZEBO_WORKSPACE}/worlds
@@ -33,8 +33,8 @@ CheckDirExists ${PX4_SIM_DIR}
 CheckDirExists ${PX4_BUILD_DIR}
 CheckDirExists ${PX4_BINARY_DIR}
 
-# CHECK IF STRING "MODIFIED NOT TO RUN GAZEBO ON PILS" EXISTS ON ${PX4_SIM_DIR}/gazebo-classic/PILS_run.sh
-while ! grep -q "MODIFIED NOT TO RUN GAZEBO ON PILS" ${PX4_SIM_DIR}/gazebo-classic/PILS_run.sh; do
+# CHECK IF STRING "MODIFIED NOT TO RUN GAZEBO ON PILS" EXISTS ON ${PX4_SIM_DIR}/gazebo-classic/sitl_run.sh
+while ! grep -q "MODIFIED NOT TO RUN GAZEBO ON PILS" ${PX4_SIM_DIR}/gazebo-classic/sitl_run.sh; do
     EchoYellow "[$(basename $0)] MODIFIED NOT TO RUN GAZEBO ON PILS NOT FOUND."
     EchoYellow "[$(basename $0)] WAITING FOR THE SCRIPT TO BE MODIFIED."
     sleep 0.5s
@@ -73,7 +73,7 @@ rm -rf ${GAZEBO_WORKSPACE}/logs/*
 touch ${GAZEBO_WORKSPACE}/logs/gazebo.log
 
 # RUN GAZEBO SIDE OF THE PX4-PILS
-(HEADLESS=$1 ${PX4_SIM_DIR}/gazebo-classic/PILS_run.sh \
+(HEADLESS=$1 ${PX4_SIM_DIR}/gazebo-classic/sitl_run.sh \
     ${PX4_BINARY_DIR}/px4 \
     none \
     ${PILS_AIRFRAME} \

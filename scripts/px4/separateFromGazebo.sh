@@ -32,7 +32,7 @@ if [ ! -z "${QGC_IP}" ]; then
     EchoGreen "[$(basename $0)] PX4 WILL BE LISTEN TO THE QGC AT ${QGC_IP}."
 
     sed -i "s/-x -u \$udp_gcs_port_local/-x -t ${QGC_IP} -u \$udp_gcs_port_local/g" \
-        PX4-Autopilot/build/px4_PILS_default/etc/init.d-posix/px4-rc.mavlink
+        PX4-Autopilot/build/px4_sitl_default/etc/init.d-posix/px4-rc.mavlink
 else
     EchoYellow "[$(basename $0)] PX4 WILL BE LISTEN TO THE QGC AT localhost."
 fi
@@ -42,17 +42,17 @@ EchoGreen $(EchoBoxLine)
 # PREVENT GAZEBO FROM RUNNING
 EchoGreen "[$(basename $0)] PREVENTING GAZEBO FROM RUNNING."
 
-# RESET THE PILS_run.sh SCRIPT
-EchoYellow "[$(basename $0)] RESETTING THE PILS_run.sh SCRIPT. USING GIT CHECKOUT."
-git -C PX4-Autopilot checkout -- Tools/simulation/gazebo-classic/PILS_run.sh
+# RESET THE sitl_run.sh SCRIPT
+EchoYellow "[$(basename $0)] RESETTING THE sitl_run.sh SCRIPT. USING GIT CHECKOUT."
+git -C PX4-Autopilot checkout -- Tools/simulation/gazebo-classic/sitl_run.sh
 
 sed -i -E \
     "s|(--model-name=\\\$\{model\}).*?(-x [0-9.]+ -y [0-9.]+ -z [0-9.]+)(.*)|\\1 $GAZEBO_POSE \\3|" \
-    PX4-Autopilot/Tools/simulation/gazebo-classic/PILS_run.sh
+    PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_run.sh
 
 # FIND THE TARGET LINE WITH STRING "$debugger" == "lldb" AND DELETE THE LINE AFTER IT
-START_LINE=$(grep -wn 'if \[ "$debugger" == "lldb" \]; then' PX4-Autopilot/Tools/simulation/gazebo-classic/PILS_run.sh | cut -d: -f1)
-END_LINE=$(grep -wn 'kill -9 $SIM_PID' PX4-Autopilot/Tools/simulation/gazebo-classic/PILS_run.sh | cut -d: -f1)
+START_LINE=$(grep -wn 'if \[ "$debugger" == "lldb" \]; then' PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_run.sh | cut -d: -f1)
+END_LINE=$(grep -wn 'kill -9 $SIM_PID' PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_run.sh | cut -d: -f1)
 
 if [ -z "${START_LINE}" ] || [ -z "${END_LINE}" ]; then
     EchoRed "[$(basename $0)] TARGET LINE NOT FOUND."
@@ -62,11 +62,11 @@ else
     EchoGreen "[$(basename $0)] TARGET LINE FOUND AT LINE NUMBER ${START_LINE}."
     EchoYellow "[$(basename $0)] DELETING ALL LINES STARTING FROM LINE NUMBER ${START_LINE}."
 
-    # sed -i "${START_LINE},${END_LINE}d" PX4-Autopilot/Tools/simulation/gazebo-classic/PILS_run.sh
-    sed -i "${START_LINE},\$d" PX4-Autopilot/Tools/simulation/gazebo-classic/PILS_run.sh
+    # sed -i "${START_LINE},${END_LINE}d" PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_run.sh
+    sed -i "${START_LINE},\$d" PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_run.sh
 
 if [ "$1x" == "airsimx" ]; then
-cat << EOF >> PX4-Autopilot/Tools/simulation/gazebo-classic/PILS_run.sh
+cat << EOF >> PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_run.sh
 while ! grep -q "SimpleFlight" /home/user/workspace/airsim/log; do
     sleep 0.5
 done
@@ -76,8 +76,8 @@ done
 EOF
 fi
 
-    echo "# MODIFIED NOT TO RUN GAZEBO ON PILS." >> PX4-Autopilot/Tools/simulation/gazebo-classic/PILS_run.sh
-    echo "# DELETED ALL LINES STARTING FROM ${START_LINE}." >> PX4-Autopilot/Tools/simulation/gazebo-classic/PILS_run.sh
+    echo "# MODIFIED NOT TO RUN GAZEBO ON SITL." >> PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_run.sh
+    echo "# DELETED ALL LINES STARTING FROM ${START_LINE}." >> PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_run.sh
 fi
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

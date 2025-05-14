@@ -19,7 +19,7 @@ done
 # MAIN STATEMENTS
 # >>>----------------------------------------------------
 
-PX4_BUILD_DIR="PX4-Autopilot/build/px4_PILS_default"
+PX4_BUILD_DIR="PX4-Autopilot/build/px4_sitl_default"
 PX4_MAVLINK_INIT_SCRIPT="${PX4_BUILD_DIR}/etc/init.d-posix/px4-rc.mavlink"
 
 CheckDirExists "PX4-Autopilot"

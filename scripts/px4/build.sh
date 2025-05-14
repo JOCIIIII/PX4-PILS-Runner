@@ -23,26 +23,26 @@ done
 CheckDirExists "PX4-Autopilot"
 CheckDirExists "PX4-Autopilot/Tools/simulation/gazebo-classic"
 
-# CHECK IF THE FILE PILS_run.sh EXISTS
-CheckFileExists "PX4-Autopilot/Tools/simulation/gazebo-classic/PILS_run.sh"
+# CHECK IF THE FILE sitl_run.sh EXISTS
+CheckFileExists "PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_run.sh"
 
-# BACKUP THE ORIGINAL PILS_run.sh
+# BACKUP THE ORIGINAL sitl_run.sh
 cp \
-    PX4-Autopilot/Tools/simulation/gazebo-classic/PILS_run.sh \
-    PX4-Autopilot/Tools/simulation/gazebo-classic/PILS_run.bak
+    PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_run.sh \
+    PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_run.bak
 
-# DELETE EXCEPT THE FIRST LINE TO BUILD PX4-PILS WHILE NOT RUNNING PX4-PILS
-sed -i '2,$d' PX4-Autopilot/Tools/simulation/gazebo-classic/PILS_run.sh
+# DELETE EXCEPT THE FIRST LINE TO BUILD PX4-sitl WHILE NOT RUNNING PX4-SITL
+sed -i '2,$d' PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_run.sh
 
-# BUILD PX4-PILS
-(cd PX4-Autopilot || exit 1; make px4_PILS gazebo-classic)
+# BUILD PX4-SITL
+(cd PX4-Autopilot || exit 1; make px4_sitl gazebo-classic)
 
-# RESTORE THE ORIGINAL PILS_run.sh
+# RESTORE THE ORIGINAL sitl_run.sh
 mv \
-    PX4-Autopilot/Tools/simulation/gazebo-classic/PILS_run.bak \
-    PX4-Autopilot/Tools/simulation/gazebo-classic/PILS_run.sh
+    PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_run.bak \
+    PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_run.sh
 
-EchoGreen "[$(basename $0)] PX4-PILS BUILT SUCCESSFULLY."
+EchoGreen "[$(basename $0)] PX4-sitl BUILT SUCCESSFULLY."
 EchoBoxLine
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

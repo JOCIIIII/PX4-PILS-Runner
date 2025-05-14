@@ -25,6 +25,6 @@ CheckDirExists "PX4-Autopilot"
 
 ${BASE_DIR}/setGCS.sh
 ${BASE_DIR}/setDDS.sh
-(cd PX4-Autopilot || exit 1; make px4_PILS gazebo-classic)
+(cd PX4-Autopilot || exit 1; make px4_sitl gazebo-classic)
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

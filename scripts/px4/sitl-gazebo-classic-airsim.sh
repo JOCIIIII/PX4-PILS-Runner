@@ -32,7 +32,7 @@ ${BASE_DIR}/setDDS.sh
 ${BASE_DIR}/separateFromGazebo.sh airsim
 
 PX4_SIM_HOST_ADDR=${GAZEBO_CLASSIC_IP} \
-    PX4-Autopilot/build/px4_PILS_default/bin/px4 -d
+    PX4-Autopilot/build/px4_sitl_default/bin/px4 -d
 
 sleep infinity
 
