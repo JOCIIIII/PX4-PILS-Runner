@@ -358,7 +358,7 @@ if [ "$1x" == "simx" ]; then
             if [ $# -ge 3 ]; then
                 # DUE TO SED ESCAPE ISSUE, ADDITIONAL ENVIRONMENT VARIABLE IS SET
                 TARGET_ROS2_WORKSPACES=${@:3}
-                SetRunModeROS2 $0 "build ${TARGET_ROS2_WORKSPACES}"
+                SetRunModeROS2 $0 $1 "build ${TARGET_ROS2_WORKSPACES}"
             # ELSE, RUN THE BUILD SCRIPT. THIS WILL BUILD ALL PACKAGES IN THE ALL DIRECTORIES THAT HAVE NON-EMPTY 'src' SUBDIRECTORY
             else
                 SetRunModeROS2 $0 $1 "build"
