@@ -20,6 +20,13 @@ source ${BASE_DIR}/include/commonEnv.sh
 # >>>----------------------------------------------------
 
 usageState1(){
+    EchoRed "Usage: $0 [sim|onboard]"
+    EchoRed "sim: STOP SIMULATION CONTAINERS"
+    EchoRed "onboard: STOP ONBOARD CONTAINERS"
+    exit 1
+}
+
+usageState2(){
     EchoRed "Usage: $0 [gazebo-classic-PILS|gazebo-classic-airsim-PILS|px4|gazebo-classic|gazebo|airsim|ros2|qgc]"
     EchoRed "gazebo-classic-PILS: STOP GAZEBO PILS CONTAINERS"
     EchoRed "gazebo-classic-airism-PILS: STOP GAZEBO-AIRSIM PILS CONTAINERS"
@@ -37,18 +44,19 @@ usageState1(){
 
 # CHECK IF ANY INPUT ARGUMENTS ARE PROVIDED
 # >>>----------------------------------------------------
-
 if [ $# -eq 0 ]; then
     usageState1 $0
+elif [ $# -eq 1 ]; then
+    usageState2 $0
 else
-    if [ "$1x" != "gazebo-classic-PILSx" ] && \
-       [ "$1x" != "gazebo-classic-airsim-PILSx" ] && \
-       [ "$1x" != "px4x" ] && \
-       [ "$1x" != "gazebo-classicx" ] && \
-       [ "$1x" != "gazebox" ] && \
-       [ "$1x" != "airsimx" ] && \
-       [ "$1x" != "ros2x" ] && \
-       [ "$1x" != "qgcx" ]; then
+    if [ "$2x" != "gazebo-classic-PILSx" ] && \
+       [ "$2x" != "gazebo-classic-airsim-PILSx" ] && \
+       [ "$2x" != "px4x" ] && \
+       [ "$2x" != "gazebo-classicx" ] && \
+       [ "$2x" != "gazebox" ] && \
+       [ "$2x" != "airsimx" ] && \
+       [ "$2x" != "ros2x" ] && \
+       [ "$2x" != "qgcx" ]; then
         EchoRed "[$(basename "$0")] INVALID INPUT. PLEASE USE ARGUMENT AMONG
         \"gazebo-classic-PILS\"
         \"gazebo-classic-airsim-PILS\"
@@ -67,8 +75,14 @@ fi
 
 # COMMON STATEMENTS
 # >>>----------------------------------------------------
-
-CheckFileExists ${PILS_DEPLOY_DIR}/compose.yml
+if [ "$1x" == "simx" ]; then
+    CheckFileExists ${PILS_DEPLOY_DIR}/compose.sim.yml
+elif [ "$1x" == "onboardx" ]; then
+    CheckFileExists ${PILS_DEPLOY_DIR}/compose.onboard.yml
+else
+    EchoRed "[$(basename "$0")] INVALID ARGUMENT"
+    exit 1
+fi
 
 CheckFileExists ${PILS_ENV_DIR}/common.env
 CheckFileExists ${PILS_ENV_DIR}/px4.env
@@ -78,40 +92,45 @@ CheckFileExists ${PILS_ENV_DIR}/ros2.env
 CheckFileExists ${PILS_ENV_DIR}/qgc.env
 
 # RUN PROCESS PER ARGUMENT
-if [ "$1x" == "gazebo-classic-PILSx" ]; then
+if [ "$2x" == "gazebo-classic-PILSx" ]; then
     EchoYellow "[$(basename "$0")] STOPPING GAZEBO-CLASSIC-PILS CONTAINERS..."
-elif [ "$1x" == "gazebo-classic-airsim-PILSx" ]; then
+elif [ "$2x" == "gazebo-classic-airsim-PILSx" ]; then
     EchoYellow "[$(basename "$0")] STOPPING GAZEBO-CLASSIC-AIRSIM-PILS CONTAINERS..."
-elif [ "$1x" == "px4x" ]; then
+elif [ "$2x" == "px4x" ]; then
     EchoYellow "[$(basename "$0")] STOPPING PX4 CONTAINER..."
-elif [ "$1x" == "gazebo-classicx" ]; then
+elif [ "$2x" == "gazebo-classicx" ]; then
     EchoYellow "[$(basename "$0")] STOPPING GAZEBO-CLASSIC CONTAINER..."
-elif [ "$1x" == "gazebox" ]; then
+elif [ "$2x" == "gazebox" ]; then
     EchoRed "[$(basename "$0")] NOT IMPLEMENTED YET"
     exit 1
-elif [ "$1x" == "airsimx" ]; then
+elif [ "$2x" == "airsimx" ]; then
     EchoYellow "[$(basename "$0")] STOPPING AIRSIM CONTAINER..."
-elif [ "$1x" == "ros2x" ]; then
+elif [ "$2x" == "ros2x" ]; then
     EchoYellow "[$(basename "$0")] STOPPING ROS2 CONTAINER..."
-elif [ "$1x" == "qgcx" ]; then
+elif [ "$2x" == "qgcx" ]; then
     EchoYellow "[$(basename "$0")] STOPPING QGroundControl CONTAINER..."
 fi
 
-cd ${PILS_DEPLOY_DIR}
-
-# IF THE ARGUMENT IS NOT ros2, THEN IT IS A SIMULATION ARGUMENT
-if [ "$1x" != "ros2x" ]; then
-    docker compose -f ${PILS_DEPLOY_DIR}/compose.yml \
+if [ "$1x" == "simx" ]; then
+    (cd ${PILS_DEPLOY_DIR} && \
+    docker compose -f ${PILS_DEPLOY_DIR}/compose.sim.yml \
         --env-file ./envs/common.env \
         --env-file ./envs/px4.env \
         --env-file ./envs/gazebo-classic.env \
         --env-file ./envs/airsim.env \
-        --env-file ./envs/qgc.env \
-        --profile $1 down
-# ELSE, IT IS AN ONBOARD ARGUMENT
-elif [ "$1x" == "ros2x" ]; then
-    docker compose -f ${PILS_DEPLOY_DIR}/compose.onboard.yml \
         --env-file ./envs/ros2.env \
-        --profile $1 down
+        --env-file ./envs/qgc.env \
+        --profile $2 down)
+# ELSE, IT IS AN ONBOARD ARGUMENT
+elif [ "$1x" == "onboardx" ]; then
+    (cd ${PILS_DEPLOY_DIR} && \
+    docker compose -f ${PILS_DEPLOY_DIR}/compose.onboard.yml \
+        --env-file ./envs/common.env \
+        --env-file ./envs/ros2.env \
+        --env-file ./envs/px4.env \
+        --profile $2 down)
+else
+    EchoRed "[$(basename "$0")] INVALID ARGUMENT"
+    exit 1
 fi
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

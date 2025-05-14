@@ -213,21 +213,21 @@ services:
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     # ------------STATIC VALUE DO NOT MODIFY-------------
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-      DISPLAY:                    ${SITL_DISPLAY}
-      WAYLAND_DISPLAY:            ${SITL_WAYLAND_DISPLAY}
+      DISPLAY:                    ${PILS_DISPLAY}
+      WAYLAND_DISPLAY:            ${PILS_WAYLAND_DISPLAY}
       XDG_RUNTIME_DIR:            ${XDG_RUNTIME_DIR}
       ROS_DOMAIN_ID:              ${ROS_DOMAIN_ID}
       PX4_IP:                     ${PX4_IP}
       AIRSIM_IP:                  ${AIRSIM_IP}
     volumes:
       - ${X11_SOCKET_DIR}:${X11_SOCKET_DIR}
-      - ${SITL_PULSEAUDIO_DIR}:/run/user/1000/pulse
+      - ${PILS_PULSEAUDIO_DIR}:/run/user/1000/pulse
       - ${ROS2_WORKSPACE}:/home/user/workspace/ros2
       - ${AIRSIM_WORKSPACE}:/home/user/workspace/airsim
     hostname: ${ROS2_ENV_CONTAINER}
     entrypoint: ${ROS2_RUN_COMMAND}
     working_dir: /home/user/workspace
-    profiles: ["gazebo-classic-airsim-sitl"]
+    profiles: ["gazebo-classic-airsim-pils"]
     env_file:
       - path: ./envs/common.env
         required: true

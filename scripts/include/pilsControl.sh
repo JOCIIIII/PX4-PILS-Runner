@@ -8,15 +8,14 @@ SimBasicSetup() {
     EchoGreen "[$(basename "$0")] [WORKSPACE SETUP - HOST]"
 
     CheckDirExists ${PILS_DEPLOY_DIR} create
-    CheckDirExists ${PILS_DEPLOY_DIR}/envs create
 
     CheckDirExists ${PX4_WORKSPACE} create
     CheckDirExists ${GAZEBO_CLASSIC_WORKSPACE} create
     CheckDirExists ${AIRSIM_WORKSPACE} create
+    CheckDirExists ${ROS2_WORKSPACE} create
     CheckDirExists ${QGC_WORKSPACE} create
 
     cp ${REPO_DIR}/compose.sim.yml ${PILS_DEPLOY_DIR}/compose.sim.yml
-
     cp -r ${REPO_DIR}/envs ${PILS_DEPLOY_DIR}
 
     EchoBoxLine
@@ -24,6 +23,19 @@ SimBasicSetup() {
 
     # SET DISPLAY AND AUDIO-RELATED ENVIRONMENT VARIABLES TO THE .env FILE
     SetComposeDisplay ${PILS_ENV_DIR}/common.env
+
+    EchoGreen "[$(basename "$0")] [ROS_DOMAIN_ID SETUP]"
+
+    # SET ROS_DOMAIN_ID TO THE .env FILE
+    # IF ROS_DOMAIN_ID IS BLANK STRING, RANDOMLY GENERATE A VALUE BETWEEN 0 - 101
+    if [ -z "${PILS_ROS_DOMAIN_ID}" ]; then
+        ROS_DOMAIN_ID=$(shuf -i 0-101 -n 1)
+        EchoYellow "[$(basename "$0")] ROS_DOMAIN_ID IS NOT SET. RANDOMLY GENERATING A VALUE BETWEEN 0 - 101"
+        EchoYellow "[$(basename "$0")] GENERATED ROS_DOMAIN_ID: ${ROS_DOMAIN_ID}"
+    fi
+    
+    EchoGreen "[$(basename "$0")] SETTING ROS_DOMAIN_ID AS ${ROS_DOMAIN_ID}"
+    sed -i "s~ROS_DOMAIN_ID=\"\"~ROS_DOMAIN_ID=${ROS_DOMAIN_ID}~" ${PILS_ENV_DIR}/common.env
 
     EchoBoxLine
 
@@ -42,6 +54,10 @@ SimBasicSetup() {
     EchoGreen "[$(basename "$0")] SETTING AIRSIM_WORKSPACE AS ${AIRSIM_WORKSPACE}"
     sed -i "s~AIRSIM_WORKSPACE=\"\"~AIRSIM_WORKSPACE=${AIRSIM_WORKSPACE}~" ${PILS_ENV_DIR}/airsim.env
 
+  # SET ROS2_WORKSPACE TO THE .env FILE
+    EchoGreen "[$(basename "$0")] SETTING ROS2_WORKSPACE AS ${ROS2_WORKSPACE}"
+    sed -i "s~ROS2_WORKSPACE=\"\"~ROS2_WORKSPACE=${ROS2_WORKSPACE}~" ${PILS_ENV_DIR}/ros2.env
+
     # SET QGC_WORKSPACE TO THE .env FILE
     EchoGreen "[$(basename "$0")] SETTING QGC_WORKSPACE AS ${QGC_WORKSPACE}"
     sed -i "s~QGC_WORKSPACE=\"\"~QGC_WORKSPACE=${QGC_WORKSPACE}~" ${PILS_ENV_DIR}/qgc.env
@@ -58,6 +74,8 @@ SimBasicSetup() {
     CheckDirExists ${GAZEBO_CLASSIC_WORKSPACE}/scripts/include create
     CheckDirExists ${AIRSIM_WORKSPACE}/scripts create
     CheckDirExists ${AIRSIM_WORKSPACE}/scripts/include create
+    CheckDirExists ${ROS2_WORKSPACE}/scripts create
+    CheckDirExists ${ROS2_WORKSPACE}/scripts/include create
     CheckDirExists ${QGC_WORKSPACE}/scripts create
     CheckDirExists ${QGC_WORKSPACE}/scripts/include create
 
@@ -68,6 +86,8 @@ SimBasicSetup() {
     cp -r ${BASE_DIR}/include/* ${GAZEBO_CLASSIC_WORKSPACE}/scripts/include
     cp -r ${BASE_DIR}/airsim/* ${AIRSIM_WORKSPACE}/scripts/
     cp -r ${BASE_DIR}/include/* ${AIRSIM_WORKSPACE}/scripts/include
+    cp -r ${BASE_DIR}/ros2/* ${ROS2_WORKSPACE}/scripts/
+    cp -r ${BASE_DIR}/include/* ${ROS2_WORKSPACE}/scripts/include
     cp -r ${BASE_DIR}/qgc/* ${QGC_WORKSPACE}/scripts/
     cp -r ${BASE_DIR}/include/* ${QGC_WORKSPACE}/scripts/include
 
@@ -88,17 +108,20 @@ SimBasicSetup() {
     PX4_IP=${BASE_IP}.2
     GAZEBO_CLASSIC_IP=${BASE_IP}.3
     AIRSIM_IP=${BASE_IP}.4
-    QGC_IP=${BASE_IP}.5
+    ROS2_IP=${BASE_IP}.5
+    QGC_IP=${BASE_IP}.6
 
     # SET CONTAINER IP ADDRESSES
     sed -i "s~PX4_IP=\"\"~PX4_IP=\"${PX4_IP}\"~" ${PILS_ENV_DIR}/px4.env
     sed -i "s~GAZEBO_CLASSIC_IP=\"\"~GAZEBO_CLASSIC_IP=\"${GAZEBO_CLASSIC_IP}\"~" ${PILS_ENV_DIR}/gazebo-classic.env
     sed -i "s~AIRSIM_IP=\"\"~AIRSIM_IP=\"${AIRSIM_IP}\"~" ${PILS_ENV_DIR}/airsim.env
+    sed -i "s~ROS2_IP=\"\"~ROS2_IP=\"${ROS2_IP}\"~" ${PILS_ENV_DIR}/ros2.env
     sed -i "s~QGC_IP=\"\"~QGC_IP=\"${QGC_IP}\"~" ${PILS_ENV_DIR}/qgc.env
 
     EchoGreen "[$(basename "$0")] *   PX4 CONTAINER IP: ${PX4_IP}"
     EchoGreen "[$(basename "$0")] *   GAZEBO-CLASSIC CONTAINER IP: ${GAZEBO_CLASSIC_IP}"
     EchoGreen "[$(basename "$0")] *   AIRSIM CONTAINER IP: ${AIRSIM_IP}"
+    EchoGreen "[$(basename "$0")] *   ROS2 CONTAINER IP: ${ROS2_IP}"
     EchoGreen "[$(basename "$0")] *   QGC CONTAINER IP: ${QGC_IP}"
 
     EchoBoxLine
@@ -273,10 +296,10 @@ SetRunModePX4() {
     SCRIPT_NAME=$(basename "$1")
     RUN_MODE=$2
 
-    if [ "${RUN_MODE}x" == "gazebo-classic-PILSx" ]; then
-        RUN_SCRIPT="PILS-gazebo-classic.sh"
-    elif [ "${RUN_MODE}x" == "gazebo-classic-airsim-PILSx" ]; then
-        RUN_SCRIPT="PILS-gazebo-classic-airsim.sh"
+    if [ "${RUN_MODE}x" == "gazebo-classic-sitlx" ]; then
+        RUN_SCRIPT="sitl-gazebo-classic.sh"
+    elif [ "${RUN_MODE}x" == "gazebo-classic-airsim-sitlx" ]; then
+        RUN_SCRIPT="sitl-gazebo-classic-airsim.sh"
     elif [ "${RUN_MODE}x" == "clonex" ]; then
         EchoGreen "[${SCRIPT_NAME}] CLONE PX4-AUTOPILOT REPOSITORY TO THE PX4_WORKSPACE"
         EchoGreen "[${SCRIPT_NAME}] CONTAINER WILL BE STOPPED AFTER THE PROCESS"
@@ -293,9 +316,9 @@ SetRunModePX4() {
         EchoRed "[${SCRIPT_NAME}] THIS WILL DELETE ALL BUILD FILES. THIS ACTION CANNOT BE UNDONE."
         WarnAction
         RUN_SCRIPT="clean.sh"
-    elif [ "${RUN_MODE}x" == "PILS-gazebo-classic-standalonex" ]; then
-        EchoGreen "[${SCRIPT_NAME}] RUN PX4-AUTOPILOT PILS IN GAZEBO-CLASSIC"
-        RUN_SCRIPT="PILS-gazebo-classic-standalone.sh"
+    elif [ "${RUN_MODE}x" == "sitl-gazebo-classic-standalonex" ]; then
+        EchoGreen "[${SCRIPT_NAME}] RUN PX4-AUTOPILOT SITL IN GAZEBO-CLASSIC"
+        RUN_SCRIPT="sitl-gazebo-classic-standalone.sh"
     elif [ "${RUN_MODE}x" == "debugx" ]; then
         EchoGreen "[${SCRIPT_NAME}] DEBUG MODE ENABLED FOR PX4-AUTOPILOT CONTAINER"
         RUN_SCRIPT="debug.sh"
@@ -329,7 +352,7 @@ SetRunModeGazeboClassic() {
     source ${PILS_ENV_DIR}/gazebo-classic.env
 
     if [ "${RUN_MODE}x" == "gazebo-classic-PILSx" ]; then
-        RUN_SCRIPT="PILS-px4.sh"
+        RUN_SCRIPT="sitl-px4.sh"
         # GAEZBO_HEADLESS=false
 
         if [ -z "${GAEZBO_HEADLESS}" ]; then
@@ -342,7 +365,7 @@ SetRunModeGazeboClassic() {
         fi 
 
     elif [ "${RUN_MODE}x" == "gazebo-classic-airsim-PILSx" ]; then
-        RUN_SCRIPT="PILS-px4.sh"
+        RUN_SCRIPT="sitl-px4.sh"
 
         if [ -z "${GAEZBO_HEADLESS}" ]; then
             sed -i "s~GAEZBO_HEADLESS=\"\"~GAEZBO_HEADLESS=\"false\"~g" ${PILS_ENV_DIR}/gazebo-classic.env
@@ -353,9 +376,9 @@ SetRunModeGazeboClassic() {
             ENABLE_HEADLESS_MODE=1
         fi 
 
-    elif [ "${RUN_MODE}x" == "PILS-px4x" ]; then
+    elif [ "${RUN_MODE}x" == "sitl-px4x" ]; then
         EchoGreen "[${SCRIPT_NAME}] RUN PX4-AUTOPILOT PILS IN GAZEBO-CLASSIC"
-        RUN_SCRIPT="PILS-px4.sh"
+        RUN_SCRIPT="sitl-px4.sh"
         GAEZBO_HEADLESS=false
 
         if [ -z "${GAEZBO_HEADLESS}" ]; then
