@@ -206,6 +206,57 @@ services:
               count: 1
               capabilities: [gpu]
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+  ros2-env-airsim:
+    image: ${ROS2_ENV_IMAGE}
+    container_name: ${ROS2_ENV_CONTAINER}
+    environment:
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # ------------STATIC VALUE DO NOT MODIFY-------------
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      DISPLAY:                    ${SITL_DISPLAY}
+      WAYLAND_DISPLAY:            ${SITL_WAYLAND_DISPLAY}
+      XDG_RUNTIME_DIR:            ${XDG_RUNTIME_DIR}
+      ROS_DOMAIN_ID:              ${ROS_DOMAIN_ID}
+      PX4_IP:                     ${PX4_IP}
+      AIRSIM_IP:                  ${AIRSIM_IP}
+    volumes:
+      - ${X11_SOCKET_DIR}:${X11_SOCKET_DIR}
+      - ${SITL_PULSEAUDIO_DIR}:/run/user/1000/pulse
+      - ${ROS2_WORKSPACE}:/home/user/workspace/ros2
+      - ${AIRSIM_WORKSPACE}:/home/user/workspace/airsim
+    hostname: ${ROS2_ENV_CONTAINER}
+    entrypoint: ${ROS2_RUN_COMMAND}
+    working_dir: /home/user/workspace
+    profiles: ["gazebo-classic-airsim-sitl"]
+    env_file:
+      - path: ./envs/common.env
+        required: true
+      - path: ./envs/ros2.env
+        required: true
+    networks:
+      default:
+        ipv4_address: ${ROS2_IP}
+    ports:
+      - 8890:8888
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    #
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # --UNCOMMENT TO ENABLE AMD/INTEL GPU ACCELERATION---
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    devices:
+      - /dev/dri/card0
+    privileged: true
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # ----UNCOMMENT TO ENABLE NVIDIA GPU ACCELERATION----
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
   qgc-app:
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     # ------------STATIC VALUE DO NOT MODIFY-------------
