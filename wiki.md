@@ -19,9 +19,9 @@ git clone https://github.com/jociiiii/PX4-PILS-Runner.git
 
 ```bash
 cd ~/PX4-PILS-Runner
-./scripts/run.sh px4 clone
-./scripts/run.sh px4 build
-./scripts/run.sh px4 stop
+./scripts/run.sh sim px4 clone
+./scripts/run.sh sim px4 build
+./scripts/run.sh sim px4 stop
 ```
 
 > 기본 설정에서 PX4-Autoiplot은 `~/Documents/A4VAI-PILS/PX4-Autopilot`에 클론되고 빌드됩니다.
