@@ -519,10 +519,10 @@ elif [ "$1x" == "onboardx" ]; then
             SetRunModeROS2 $0 $1 debug
         elif [ "$3x" == "buildx" ]; then
             # IF ADDITIONAL DIRECTORIES ARE PROVIDED, PASS THEM TO THE BUILD SCRIPT
-            if [ $# -ge 3 ]; then
+            if [ $# -ge 4 ]; then
                 # DUE TO SED ESCAPE ISSUE, ADDITIONAL ENVIRONMENT VARIABLE IS SET
-                TARGET_ROS2_WORKSPACES=${@:3}
-                SetRunModeROS2 $0 $1"build ${TARGET_ROS2_WORKSPACES}"
+                TARGET_ROS2_WORKSPACES=${@:4}
+                SetRunModeROS2 $0 $1 "build ${TARGET_ROS2_WORKSPACES}"
             # ELSE, RUN THE BUILD SCRIPT. THIS WILL BUILD ALL PACKAGES IN THE ALL DIRECTORIES THAT HAVE NON-EMPTY 'src' SUBDIRECTORY
             else
                 SetRunModeROS2 $0 $1 "build"
@@ -536,91 +536,8 @@ elif [ "$1x" == "onboardx" ]; then
         # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     fi
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    
-    # RUN FOR EACH ARGUMENT
-    # >>>----------------------------------------------------
-    # ACTION: run. RUN THE CONTAINER IN NORMAL MODE
-    if [ "$2x" == "runx" ]; then
-        # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
-        LimitNumArgument $0 3 "$@"
-        SetRunModeROS2 $0 $1 gazebo-classic-airsim-pils
-    # ACTION: unit-test. UNIT TEST INDIVIDUAL ALGORITHMS IN ONBOARD ENVIRONMENT
-    elif [ "$2x" == "unit-testx" ]; then
-        # INPUT STATEMENT 3 VALIDITY CHECK
-        declare -A usageState3
-        usageState3["path-planning"]="RUNNING PATH PLANNIG UNIT TEST"
-        usageState3["path-following"]="RUNNING PATH FOLLOWING UNIT TEST"
-        usageState3["collision-avoidance"]="RUNNING COLLISION AVOIDANCE UNIT TEST"
-
-        CheckValidity $0 usageState3 3 "$@"
-
-        # RUN FOR EACH ARGUMENT
-        # >>>----------------------------------------------------
-        # ACTION: path-planning. RUNNING PATH PLANNIG UNIT TEST
-        if [ "$3x" == "path-planningx" ]; then
-            # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
-            LimitNumArgument $0 3 "$@"
-            SetRunModeROS2 $0 $1 path-planning-unit-test.sh
-        # ACTION: path-following. RUNNING PATH FOLLOWING UNIT TEST
-        elif [ "$3x" == "path-followingx" ]; then
-            # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
-            LimitNumArgument $0 3 "$@"
-            SetRunModeROS2 $0 $1 path-following-unit-test.sh
-        # ACTION: collision-avoidance. RUNNING COLLISION AVOIDANCE UNIT TEST
-        elif [ "$3x" == "collision-avoidancex" ]; then
-            # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
-            LimitNumArgument $0 3 "$@"
-            SetRunModeROS2 $0 $1 collision-avoidance-unit-test.sh
-        fi
-        # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    # ACTION: integration-test. INTEGRATION TEST INDIVIDUAL ALGORITHMS IN ONBOARD ENVIRONMENT
-    elif [ "$2x" == "integration-testx" ]; then
-        # INPUT STATEMENT 3 VALIDITY CHECK
-        declare -A usageState3
-        usageState3["pp-pf-integrationx"]="RUNNING PATH PLANNING AND PATH FOLLOWING INTEGRATION TEST"
-        usageState3["pf-ca-integrationx"]="RUNNING PATH FOLLOWING AND COLLISION AVOIDANCE INTEGRATION TEST"
-        
-        CheckValidity $0 usageState3 3 "$@"
-        
-        # RUN FOR EACH ARGUMENT
-        # >>>----------------------------------------------------
-        # ACTION: pp-pf-integrationx. RUNNING PATH PLANNING AND PATH FOLLOWING INTEGRATION TEST
-        if [ "$3x" == "pp-pf-integrationx" ]; then
-            # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
-            LimitNumArgument $0 3 "$@"
-            SetRunModeROS2 $0 $1 pp-pf-integration-test.sh
-        # ACTION: pf-ca-integrationx. RUNNING PATH FOLLOWING AND COLLISION AVOIDANCE INTEGRATION TEST
-        elif [ "$3x" == "pf-ca-integrationx" ]; then
-            # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
-            LimitNumArgument $0 3 "$@"
-            SetRunModeROS2 $0 $1 pf-ca-integration-test.sh
-        fi
-        # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    # ACTION: debug. RUN THE CONTAINER IN DEBUG MODE (sleep infinity)
-    elif [ "$2x" == "debugx" ]; then
-        # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
-        LimitNumArgument $0 3 "$@"
-        SetRunModeROS2 $0 $1 debug
-    # ACTION: build. BUILD ROS2 PACKAGES INSIDE THE CONTAINER
-    elif [ "$2x" == "buildx" ]; then
-        # IF ADDITIONAL DIRECTORIES ARE PROVIDED, PASS THEM TO THE BUILD SCRIPT
-        if [ $# -ge 3 ]; then
-            # DUE TO SED ESCAPE ISSUE, ADDITIONAL ENVIRONMENT VARIABLE IS SET
-            TARGET_ROS2_WORKSPACES=${@:3}
-            SetRunModeROS2 $0 $1"build ${TARGET_ROS2_WORKSPACES}"
-        # ELSE, RUN THE BUILD SCRIPT. THIS WILL BUILD ALL PACKAGES IN THE ALL DIRECTORIES THAT HAVE NON-EMPTY 'src' SUBDIRECTORY
-        else
-            SetRunModeROS2 $0 $1 "build"
-        fi
-    # ACTION: stop. STOP THE CONTAINER
-    elif [ "$2x" == "stopx" ]; then
-        # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
-        LimitNumArgument $0 3 "$@"
-        ${BASE_DIR}/stop.sh $1 $2
-        exit 0
-    fi
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 fi
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 if [ "$1x" == "simx" ]; then
     (cd ${PILS_DEPLOY_DIR} && \
