@@ -471,6 +471,7 @@ elif [ "$1x" == "onboardx" ]; then
         usageState3["debug"]="RUN ONBOARD ARGUMENT IN DEBUG MODE (sleep infinity)"
         usageState3["build"]="BUILD ONBOARD ARGUMENT"
         usageState3["stop"]="STOP ONBOARD ARGUMENT IF IT IS RUNNING"
+        usageState3["*.sh"]="RUN ONBOARD ARGUMENT IN MANUAL MODE (run specific shell script)"
 
         CheckValidity $0 usageState3 3 "$@"
 
@@ -532,6 +533,10 @@ elif [ "$1x" == "onboardx" ]; then
             LimitNumArgument $0 3 "$@"
             ${BASE_DIR}/stop.sh $1 $2
             exit 0
+        elif [[ "$3x" == *".shx" ]]; then
+            # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
+            LimitNumArgument $0 3 "$@"
+            SetRunModeROS2 $0 $1 $3
         fi
         # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     fi
