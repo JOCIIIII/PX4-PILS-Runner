@@ -108,20 +108,20 @@ SimBasicSetup() {
     PX4_IP=${BASE_IP}.2
     GAZEBO_CLASSIC_IP=${BASE_IP}.3
     AIRSIM_IP=${BASE_IP}.4
-    ROS2_IP=${BASE_IP}.5
+    ROS2_SIM_IP=${BASE_IP}.5
     QGC_IP=${BASE_IP}.6
 
     # SET CONTAINER IP ADDRESSES
     sed -i "s~PX4_IP=\"\"~PX4_IP=\"${PX4_IP}\"~" ${PILS_ENV_DIR}/px4.env
     sed -i "s~GAZEBO_CLASSIC_IP=\"\"~GAZEBO_CLASSIC_IP=\"${GAZEBO_CLASSIC_IP}\"~" ${PILS_ENV_DIR}/gazebo-classic.env
     sed -i "s~AIRSIM_IP=\"\"~AIRSIM_IP=\"${AIRSIM_IP}\"~" ${PILS_ENV_DIR}/airsim.env
-    sed -i "s~ROS2_IP=\"\"~ROS2_IP=\"${ROS2_IP}\"~" ${PILS_ENV_DIR}/ros2.sim.env
+    sed -i "s~ROS2_SIM_IP=\"\"~ROS2_SIM_IP=\"${ROS2_SIM_IP}\"~" ${PILS_ENV_DIR}/ros2.sim.env
     sed -i "s~QGC_IP=\"\"~QGC_IP=\"${QGC_IP}\"~" ${PILS_ENV_DIR}/qgc.env
 
     EchoGreen "[$(basename "$0")] *   PX4 CONTAINER IP: ${PX4_IP}"
     EchoGreen "[$(basename "$0")] *   GAZEBO-CLASSIC CONTAINER IP: ${GAZEBO_CLASSIC_IP}"
     EchoGreen "[$(basename "$0")] *   AIRSIM CONTAINER IP: ${AIRSIM_IP}"
-    EchoGreen "[$(basename "$0")] *   ROS2 CONTAINER IP: ${ROS2_IP}"
+    EchoGreen "[$(basename "$0")] *   ROS2 CONTAINER IP: ${ROS2_SIM_IP}"
     EchoGreen "[$(basename "$0")] *   QGC CONTAINER IP: ${QGC_IP}"
 
     EchoBoxLine

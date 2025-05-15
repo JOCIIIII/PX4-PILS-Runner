@@ -551,6 +551,7 @@ if [ "$1x" == "simx" ]; then
         --env-file ./envs/px4.env \
         --env-file ./envs/gazebo-classic.env \
         --env-file ./envs/airsim.env \
+        --env-file ./envs/ros2.onboard.env \
         --env-file ./envs/ros2.sim.env \
         --env-file ./envs/qgc.env \
         --profile $2 up)

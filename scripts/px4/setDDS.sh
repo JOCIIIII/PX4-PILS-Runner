@@ -31,7 +31,7 @@ EchoGreen "[$(basename $0)] SETTING uXRCE DDS AGENT IP TARGET."
 # FIND THE LINE NUMVER CONTAINING "uxrce_dds_client start"
 LINE_NUMBER=$(grep -n "uxrce_dds_client start" ${PX4_INIT_SCRIPT} | cut -d: -f1)
 
-# REPLACE THE LINE WITH "uxrce_dds_client start -t udp -h ${ROS2_IP} -p $uxrce_dds_port $uxrce_dds_ns"
-sed -i "${LINE_NUMBER}s/.*/uxrce_dds_client start -t udp -h ${ROS2_IP} -p \$uxrce_dds_port \$uxrce_dds_ns/" ${PX4_INIT_SCRIPT}
+# REPLACE THE LINE WITH "uxrce_dds_client start -t udp -h ${ROS2_ONBOARD_IP} -p $uxrce_dds_port $uxrce_dds_ns"
+sed -i "${LINE_NUMBER}s/.*/uxrce_dds_client start -t udp -h ${ROS2_ONBOARD_IP} -p \$uxrce_dds_port \$uxrce_dds_ns/" ${PX4_INIT_SCRIPT}
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

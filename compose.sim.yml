@@ -18,7 +18,8 @@ services:
       WAYLAND_DISPLAY:            ${PILS_WAYLAND_DISPLAY}
       XDG_RUNTIME_DIR:            ${XDG_RUNTIME_DIR}
       GAZEBO_CLASSIC_IP:          ${GAZEBO_CLASSIC_IP}
-      ROS2_IP:                    ${ROS2_IP}
+      ROS2_SIM_IP:                ${ROS2_SIM_IP}
+      ROS2_ONBOARD_IP:            ${ROS2_ONBOARD_IP}
       QGC_IP:                     ${QGC_IP}
     volumes:
       - ${X11_SOCKET_DIR}:${X11_SOCKET_DIR}
@@ -235,7 +236,7 @@ services:
         required: true
     networks:
       default:
-        ipv4_address: ${ROS2_IP}
+        ipv4_address: ${ROS2_SIM_IP}
     ports:
       - 8890:8888
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
