@@ -405,24 +405,138 @@ if [ "$1x" == "simx" ]; then
             SetRunModeQGC $0 normal
         fi
         # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    fi
 elif [ "$1x" == "onboardx" ]; then
-    # PERFORM BASIC SETUP
-    ## WORKSPACE DIRECTORIES, ENVIRONMENT VARIABLES, AND DISPLAY SETTINGS
-    OnboardBasicSetup
-        
     # INPUT STATEMENT 2 VALIDITY CHECK
     # >>>----------------------------------------------------
     declare -A usageState2
-    usageState2["run"]="RUN ONBOARD ARGUMENT"
-    usageState2["unit-test"]="UNIT TEST INDIVIDUAL ALGORITHMS IN ONBOARD ENVIRONMENT"
-    usageState2["integration-test"]="INTEGRATION TEST INDIVIDUAL ALGORITHMS IN ONBOARD ENVIRONMENT"
-    usageState2["debug"]="RUN ONBOARD ARGUMENT IN DEBUG MODE (sleep infinity)"
-    usageState2["build"]="BUILD ONBOARD ARGUMENT"
-    usageState2["stop"]="STOP ONBOARD ARGUMENT IF IT IS RUNNING"
+    usageState2["gazebo-classic-pils"]="DEPLOY GAZEBO PILS CONTAINER"
+    usageState2["gazebo-classic-airsim-pils"]="DEPLOY GAZEBO-AIRSIM PILS CONTAINER"
+    usageState2["ros2"]="DEPLOY ROS2 CONTAINER"
 
     CheckValidity $0 usageState2 2 "$@"
+
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+    # RUN PROCESS PER ARGUMENT
+    # >>>----------------------------------------------------
+    # PERFORM BASIC SETUP
+    ## WORKSPACE DIRECTORIES, ENVIRONMENT VARIABLES, AND DISPLAY SETTINGS
+    OnboardBasicSetup
+
+    if [ "$2x" == "gazebo-classic-pilsx" ]; then
+        # INPUT STATEMENT 3 VALIDITY CHECK
+        declare -A usageState3
+        usageState3["run"]="RUN ONBOARD ARGUMENT"
+        usageState3["stop"]="STOP ONBOARD ARGUMENT IF IT IS RUNNING"
+
+        CheckValidity $0 usageState3 3 "$@"
+
+        if [ "$3x" == "runx" ]; then
+            # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
+            LimitNumArgument $0 3 "$@"
+            SetRunModeROS2 $0 $1 gazebo-classic-pils
+        elif [ "$3x" == "stopx" ]; then
+            # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
+            LimitNumArgument $0 3 "$@"
+            ${BASE_DIR}/stop.sh $1 $2
+            exit 0
+        fi
+        # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    elif [ "$2x" == "gazebo-classic-airsim-pilsx" ]; then
+        # INPUT STATEMENT 3 VALIDITY CHECK
+        declare -A usageState3
+        usageState3["run"]="RUN ONBOARD ARGUMENT"
+        usageState3["stop"]="STOP ONBOARD ARGUMENT IF IT IS RUNNING"
+
+        CheckValidity $0 usageState3 3 "$@"
+
+        if [ "$3x" == "runx" ]; then
+            # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
+            LimitNumArgument $0 3 "$@"
+            SetRunModeROS2 $0 $1 gazebo-classic-airsim-pils
+        elif [ "$3x" == "stopx" ]; then
+            # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
+            LimitNumArgument $0 3 "$@"
+            ${BASE_DIR}/stop.sh $1 $2
+            exit 0
+        fi
+        # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    elif [ "$2x" == "ros2x" ]; then
+        # INPUT STATEMENT 3 VALIDITY CHECK
+        declare -A usageState3
+        usageState3["unit-test"]="UNIT TEST INDIVIDUAL ALGORITHMS IN ONBOARD ENVIRONMENT"
+        usageState3["integration-test"]="INTEGRATION TEST INDIVIDUAL ALGORITHMS IN ONBOARD ENVIRONMENT"
+        usageState3["debug"]="RUN ONBOARD ARGUMENT IN DEBUG MODE (sleep infinity)"
+        usageState3["build"]="BUILD ONBOARD ARGUMENT"
+        usageState3["stop"]="STOP ONBOARD ARGUMENT IF IT IS RUNNING"
+
+        CheckValidity $0 usageState3 3 "$@"
+
+        if [ "$3x" == "unit-testx" ]; then
+            # INPUT STATEMENT 4 VALIDITY CHECK
+            declare -A usageState4
+            usageState4["path-planning"]="RUNNING PATH PLANNIG UNIT TEST"
+            usageState4["path-following"]="RUNNING PATH FOLLOWING UNIT TEST"
+            usageState4["collision-avoidance"]="RUNNING COLLISION AVOIDANCE UNIT TEST"
+
+            CheckValidity $0 usageState4 4 "$@"
+
+            if [ "$4x" == "path-planningx" ]; then
+                # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
+                LimitNumArgument $0 4 "$@"
+                SetRunModeROS2 $0 $1 path-planning-unit-test.sh
+            elif [ "$4x" == "path-followingx" ]; then
+                # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
+                LimitNumArgument $0 4 "$@"
+                SetRunModeROS2 $0 $1 path-following-unit-test.sh
+            elif [ "$4x" == "collision-avoidancex" ]; then
+                # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
+                LimitNumArgument $0 4 "$@"
+                SetRunModeROS2 $0 $1 collision-avoidance-unit-test.sh
+            fi
+        elif [ "$3x" == "integration-testx" ]; then
+            # INPUT STATEMENT 4 VALIDITY CHECK
+            declare -A usageState4
+            usageState4["pp-pf-integration"]="RUNNING PATH PLANNING AND PATH FOLLOWING INTEGRATION TEST"
+            usageState4["pf-ca-integration"]="RUNNING PATH FOLLOWING AND COLLISION AVOIDANCE INTEGRATION TEST"
+
+            CheckValidity $0 usageState4 4 "$@"
+
+            if [ "$4x" == "pp-pf-integrationx" ]; then
+                # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
+                LimitNumArgument $0 4 "$@"
+                SetRunModeROS2 $0 $1 pp-pf-integration-test.sh
+            elif [ "$4x" == "pf-ca-integrationx" ]; then
+                # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
+                LimitNumArgument $0 4 "$@"
+                SetRunModeROS2 $0 $1 pf-ca-integration-test.sh
+            fi
+        elif [ "$3x" == "debugx" ]; then
+            # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
+            LimitNumArgument $0 3 "$@"
+            SetRunModeROS2 $0 $1 debug
+        elif [ "$3x" == "buildx" ]; then
+            # IF ADDITIONAL DIRECTORIES ARE PROVIDED, PASS THEM TO THE BUILD SCRIPT
+            if [ $# -ge 3 ]; then
+                # DUE TO SED ESCAPE ISSUE, ADDITIONAL ENVIRONMENT VARIABLE IS SET
+                TARGET_ROS2_WORKSPACES=${@:3}
+                SetRunModeROS2 $0 $1"build ${TARGET_ROS2_WORKSPACES}"
+            # ELSE, RUN THE BUILD SCRIPT. THIS WILL BUILD ALL PACKAGES IN THE ALL DIRECTORIES THAT HAVE NON-EMPTY 'src' SUBDIRECTORY
+            else
+                SetRunModeROS2 $0 $1 "build"
+            fi
+        elif [ "$3x" == "stopx" ]; then
+            # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
+            LimitNumArgument $0 3 "$@"
+            ${BASE_DIR}/stop.sh $1 $2
+            exit 0
+        fi
+        # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    fi
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    
     # RUN FOR EACH ARGUMENT
     # >>>----------------------------------------------------
     # ACTION: run. RUN THE CONTAINER IN NORMAL MODE
@@ -443,7 +557,7 @@ elif [ "$1x" == "onboardx" ]; then
         # RUN FOR EACH ARGUMENT
         # >>>----------------------------------------------------
         # ACTION: path-planning. RUNNING PATH PLANNIG UNIT TEST
-        elif [ "$3x" == "path-planningx" ]; then
+        if [ "$3x" == "path-planningx" ]; then
             # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
             LimitNumArgument $0 3 "$@"
             SetRunModeROS2 $0 $1 path-planning-unit-test.sh
@@ -526,8 +640,5 @@ elif [ "$1x" == "onboardx" ]; then
         --env-file ./envs/ros2.onboard.env \
         --env-file ./envs/px4.env \
         --profile $2 up)
-else
-    EchoRed "[$(basename "$0")] INVALID ARGUMENT"
-    exit 1
 fi
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
