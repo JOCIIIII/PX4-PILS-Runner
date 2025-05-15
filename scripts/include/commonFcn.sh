@@ -106,7 +106,7 @@ CheckDirExists(){
             exit 1
         fi
     else
-        EchoYellow "[$(basename "$0")] DIRECTORY \"$1\" ALREADY EXISTS."
+        EchoGreen "[$(basename "$0")] DIRECTORY \"$1\" ALREADY EXISTS."
     fi
 
 }
