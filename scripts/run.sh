@@ -125,6 +125,7 @@ if [ "$1x" == "simx" ]; then
         usageState3["run"]="RUN PX4-AUTOPILOT PILS IN GAZEBO-CLASSIC"
         usageState3["debug"]="RUN PX4-AUTOPILOT PILS IN GAZEBO-CLASSIC IN DEBUG MODE (OPTION: SERVICE(S) TO STOP)"
         usageState3["stop"]="STOP PX4-AUTOPILOT PILS IN GAZEBO-CLASSIC IF IT IS RUNNING"
+        usageState3["test"]="RUN TEST"
 
         CheckValidity $0 usageState3 3 "$@"
         # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -140,6 +141,7 @@ if [ "$1x" == "simx" ]; then
             EchoYellow "[$(basename "$0")] IT IS RECOMMENDED TO USE stop.sh SCRIPT TO STOP THE CONTAINER."
 
             ${BASE_DIR}/stop.sh $1 $2
+            ssh -X a4vai@192.168.50.2 ./PX4-PILS-Runner/scripts/run.sh onboard ros2 stop
             exit 0
         # ACTION: debug. SET CONTAINERS IN DEBUG MODE
         elif [ "$3x" == "debugx" ]; then
@@ -193,9 +195,87 @@ if [ "$1x" == "simx" ]; then
             SetRunModeAirSim $0 gazebo-classic-airsim-pils
             SetRunModeROS2 $0 $1 gazebo-classic-airsim-pils
             SetRunModeQGC $0 normal
+
+        # ACTION: test. RUN THE TEST
+        elif [ "$3x" == "testx" ]; then
+            # INPUT STATEMENT 4 VALIDITY CHECK
+            # >>>----------------------------------------------------
+            declare -A usageState4
+            usageState4["unit-test"]="RUN UNIT TEST"
+            usageState4["integration-test"]="RUN INTEGRATION TEST"
+
+            CheckValidity $0 usageState4 4 "$@"
+            # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+            if [ "$4x" == "unit-testx" ]; then
+                # INPUT STATEMENT 5 VALIDITY CHECK
+                # >>>----------------------------------------------------
+                declare -A usageState5
+                usageState5["path-planning"]="RUN PATH PLANNING TEST"
+                usageState5["path-following"]="RUN PATH FOLLOWING TEST"
+                usageState5["collision-avoidance"]="RUN COLLISION AVOIDANCE TEST"
+                
+                CheckValidity $0 usageState5 5 "$@"
+                # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+                if [ "$5x" == "path-planningx" ]; then
+                    # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
+                    LimitNumArgument $0 5 "$@"
+
+                    SetRunModeROS2 $0 $1 gazebo-classic-airsim-pils
+                    ssh -X a4vai@192.168.50.2 `./PX4-PILS-Runner/scripts/run.sh onboard ros2 unit-test path-planning&` >/dev/null 2>&1 &
+                elif [ "$5x" == "path-followingx" ]; then
+                    # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
+                    LimitNumArgument $0 5 "$@"
+
+                    SetRunModePX4 $0 gazebo-classic-airsim-sitl
+                    SetRunModeGazeboClassic $0 gazebo-classic-airsim-sitl
+                    SetRunModeAirSim $0 gazebo-classic-airsim-pils
+                    SetRunModeROS2 $0 $1 ros-util-package.sh
+                    SetRunModeQGC $0 normal
+                    ssh -X a4vai@192.168.50.2 './PX4-PILS-Runner/scripts/run.sh onboard ros2 unit-test path-following > /dev/null 2>&1' &
+
+                elif [ "$5x" == "collision-avoidancex" ]; then
+                    # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
+                    LimitNumArgument $0 5 "$@"
+
+                    SetRunModePX4 $0 gazebo-classic-airsim-sitl
+                    SetRunModeGazeboClassic $0 gazebo-classic-airsim-sitl
+                    SetRunModeAirSim $0 gazebo-classic-airsim-pils
+                    SetRunModeROS2 $0 $1 gazebo-classic-airsim-pils
+                    SetRunModeQGC $0 normal
+                    ssh -X a4vai@192.168.50.2 `./PX4-PILS-Runner/scripts/run.sh onboard ros2 unit-test collision-avoidance&` >/dev/null 2>&1 &
+                fi
+            elif [ "$4x" == "integration-testx" ]; then
+                # INPUT STATEMENT 4 VALIDITY CHECK
+                # >>>----------------------------------------------------
+                declare -A usageState5
+                usageState5["pp-pf-integration"]="RUN PATH PLANNING AND PATH FOLLOWING INTEGRATION TEST"
+                usageState5["pf-ca-integration"]="RUN PATH FOLLOWING AND COLLISION AVOIDANCE INTEGRATION TEST"
+
+                CheckValidity $0 usageState5 5 "$@"
+                # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+                if [ "$5x" == "pp-pf-integrationx" ]; then
+                    # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
+                    SetRunModePX4 $0 gazebo-classic-airsim-sitl
+                    SetRunModeGazeboClassic $0 gazebo-classic-airsim-sitl
+                    SetRunModeAirSim $0 gazebo-classic-airsim-pils
+                    SetRunModeROS2 $0 $1 gazebo-classic-airsim-pils
+                    SetRunModeQGC $0 normal
+                    ssh -X a4vai@192.168.50.2 `./PX4-PILS-Runner/scripts/run.sh onboard ros2 pp-pf-integration&` >/dev/null 2>&1 &
+                elif [ "$5x" == "pf-ca-integrationx" ]; then
+                    # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
+                    SetRunModePX4 $0 gazebo-classic-airsim-sitl
+                    SetRunModeGazeboClassic $0 gazebo-classic-airsim-sitl
+                    SetRunModeAirSim $0 gazebo-classic-airsim-pils
+                    SetRunModeROS2 $0 $1 gazebo-classic-airsim-pils
+                    SetRunModeQGC $0 normal
+                    ssh -X a4vai@192.168.50.2 `./PX4-PILS-Runner/scripts/run.sh onboard ros2 pf-ca-integration&` >/dev/null 2>&1 &
+                fi
+            fi
         fi
         # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
     elif [ "$2x" == "px4x" ]; then
         # INPUT STATEMENT 2 VALIDITY CHECK
         # >>>----------------------------------------------------
@@ -279,9 +359,7 @@ if [ "$1x" == "simx" ]; then
             SetRunModeGazeboClassic $0 sitl-px4
         fi
         # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    elif [ "$2x" == "gazebox" ]; then
-        EchoRed "[$(basename "$0")] NOT IMPLEMENTED YET"
-        exit 1
+
     elif [ "$2x" == "airsimx" ]; then
         # INPUT STATEMENT 2 VALIDITY CHECK
         # >>>----------------------------------------------------
@@ -355,9 +433,9 @@ if [ "$1x" == "simx" ]; then
         # ACTION: build. BUILD ROS2 PACKAGES INSIDE THE CONTAINER
         elif [ "$3x" == "buildx" ]; then
             # IF ADDITIONAL DIRECTORIES ARE PROVIDED, PASS THEM TO THE BUILD SCRIPT
-            if [ $# -ge 3 ]; then
+            if [ $# -ge 4 ]; then
                 # DUE TO SED ESCAPE ISSUE, ADDITIONAL ENVIRONMENT VARIABLE IS SET
-                TARGET_ROS2_WORKSPACES=${@:3}
+                TARGET_ROS2_WORKSPACES=${@:4}
                 SetRunModeROS2 $0 $1 "build ${TARGET_ROS2_WORKSPACES}"
             # ELSE, RUN THE BUILD SCRIPT. THIS WILL BUILD ALL PACKAGES IN THE ALL DIRECTORIES THAT HAVE NON-EMPTY 'src' SUBDIRECTORY
             else

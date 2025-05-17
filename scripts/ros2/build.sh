@@ -87,4 +87,7 @@ else
     done
 fi
 
+chmod -R a+rwx ${dir}/install
+chmod -R a+rwx ${dir}/build
+chmod -R a+rwx ${dir}/log
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

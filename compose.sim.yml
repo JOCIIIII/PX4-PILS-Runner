@@ -228,7 +228,7 @@ services:
     hostname: ${ROS2_ENV_CONTAINER}
     entrypoint: ${ROS2_RUN_COMMAND}
     working_dir: /home/user/workspace
-    profiles: ["ros2","gazebo-classic-airsim-pils"]
+    profiles: ["ros2","gazebo-classic-airsim-pils","gazebo-classic-pils"]
     env_file:
       - path: ./envs/common.env
         required: true
