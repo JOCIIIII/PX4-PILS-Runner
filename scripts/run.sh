@@ -261,17 +261,17 @@ if [ "$1x" == "simx" ]; then
                     SetRunModePX4 $0 gazebo-classic-airsim-sitl
                     SetRunModeGazeboClassic $0 gazebo-classic-airsim-sitl
                     SetRunModeAirSim $0 gazebo-classic-airsim-pils
-                    SetRunModeROS2 $0 $1 gazebo-classic-airsim-pils
+                    SetRunModeROS2 $0 $1 ros-util-package.sh
                     SetRunModeQGC $0 normal
-                    ssh -X a4vai@192.168.50.2 `./PX4-PILS-Runner/scripts/run.sh onboard ros2 pp-pf-integration&` >/dev/null 2>&1 &
+                    ssh -X a4vai@192.168.50.2 `./PX4-PILS-Runner/scripts/run.sh onboard ros2 integration-test pp-pf-integration&` >/dev/null 2>&1 &
                 elif [ "$5x" == "pf-ca-integrationx" ]; then
                     # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
                     SetRunModePX4 $0 gazebo-classic-airsim-sitl
                     SetRunModeGazeboClassic $0 gazebo-classic-airsim-sitl
                     SetRunModeAirSim $0 gazebo-classic-airsim-pils
-                    SetRunModeROS2 $0 $1 gazebo-classic-airsim-pils
+                    SetRunModeROS2 $0 $1 ros-util-package.sh
                     SetRunModeQGC $0 normal
-                    ssh -X a4vai@192.168.50.2 `./PX4-PILS-Runner/scripts/run.sh onboard ros2 pf-ca-integration&` >/dev/null 2>&1 &
+                    ssh -X a4vai@192.168.50.2 `./PX4-PILS-Runner/scripts/run.sh onboard ros2 integration-test pf-ca-integration&` >/dev/null 2>&1 &
                 fi
             fi
         fi
