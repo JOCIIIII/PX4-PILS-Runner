@@ -223,7 +223,7 @@ if [ "$1x" == "simx" ]; then
                     LimitNumArgument $0 5 "$@"
 
                     SetRunModeROS2 $0 $1 gazebo-classic-airsim-pils
-                    ssh -X a4vai@192.168.50.2 `./PX4-PILS-Runner/scripts/run.sh onboard ros2 unit-test path-planning&` >/dev/null 2>&1 &
+                    ssh -X a4vai@192.168.50.2 './PX4-PILS-Runner/scripts/run.sh onboard ros2 unit-test path-planning& > /dev/null 2>&1 &'
                 elif [ "$5x" == "path-followingx" ]; then
                     # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
                     LimitNumArgument $0 5 "$@"
@@ -233,8 +233,7 @@ if [ "$1x" == "simx" ]; then
                     SetRunModeAirSim $0 gazebo-classic-airsim-pils
                     SetRunModeROS2 $0 $1 ros-util-package.sh
                     SetRunModeQGC $0 normal
-                    ssh -X a4vai@192.168.50.2 './PX4-PILS-Runner/scripts/run.sh onboard ros2 unit-test path-following > /dev/null 2>&1' &
-
+                    ssh -X a4vai@192.168.50.2 './PX4-PILS-Runner/scripts/run.sh onboard ros2 unit-test path-following > /dev/null 2>&1 &'
                 elif [ "$5x" == "collision-avoidancex" ]; then
                     # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
                     LimitNumArgument $0 5 "$@"
@@ -244,7 +243,7 @@ if [ "$1x" == "simx" ]; then
                     SetRunModeAirSim $0 gazebo-classic-airsim-pils
                     SetRunModeROS2 $0 $1 gazebo-classic-airsim-pils
                     SetRunModeQGC $0 normal
-                    ssh -X a4vai@192.168.50.2 `./PX4-PILS-Runner/scripts/run.sh onboard ros2 unit-test collision-avoidance&` >/dev/null 2>&1 &
+                    ssh -X a4vai@192.168.50.2 './PX4-PILS-Runner/scripts/run.sh onboard ros2 unit-test collision-avoidance& > /dev/null 2>&1 &'
                 fi
             elif [ "$4x" == "integration-testx" ]; then
                 # INPUT STATEMENT 4 VALIDITY CHECK
@@ -263,7 +262,7 @@ if [ "$1x" == "simx" ]; then
                     SetRunModeAirSim $0 gazebo-classic-airsim-pils
                     SetRunModeROS2 $0 $1 ros-util-package.sh
                     SetRunModeQGC $0 normal
-                    ssh -X a4vai@192.168.50.2 `./PX4-PILS-Runner/scripts/run.sh onboard ros2 integration-test pp-pf-integration&` >/dev/null 2>&1 &
+                    ssh -X a4vai@192.168.50.2 './PX4-PILS-Runner/scripts/run.sh onboard ros2 integration-test pp-pf-integration > /dev/null 2>&1 &' 
                 elif [ "$5x" == "pf-ca-integrationx" ]; then
                     # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
                     SetRunModePX4 $0 gazebo-classic-airsim-sitl
@@ -271,7 +270,7 @@ if [ "$1x" == "simx" ]; then
                     SetRunModeAirSim $0 gazebo-classic-airsim-pils
                     SetRunModeROS2 $0 $1 ros-util-package.sh
                     SetRunModeQGC $0 normal
-                    ssh -X a4vai@192.168.50.2 `./PX4-PILS-Runner/scripts/run.sh onboard ros2 integration-test pf-ca-integration&` >/dev/null 2>&1 &
+                    ssh -X a4vai@192.168.50.2 './PX4-PILS-Runner/scripts/run.sh onboard ros2 integration-test pf-ca-integration& > /dev/null 2>&1 &'
                 fi
             fi
         fi
