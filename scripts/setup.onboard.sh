@@ -1,20 +1,13 @@
 #!/bin/bash
-
-./scripts/run.sh sim px4 clone
-./scripts/run.sh sim px4 build
-./scripts/run.sh sim px4 stop
 mkdir -p ~/Documents/A4VAI-PILS/ROS2/ros2_ws/src
-git clone https://github.com/JOCIIIII/A4VAI-ROS2-Util-Package.git ~/Documents/A4VAI-PILS/ROS2/ros2_ws/src
+git clone https://github.com/JOCIIIII/A4VAI-Algorithms-ROS2.git ~/Documents/A4VAI-PILS/ROS2/ros2_ws/src 
+git -C ~/Documents/A4VAI-PILS/ROS2/ros2_ws/src submodule update --init --recursive 
+mkdir -p ~/Documents/A4VAI-PILS/ROS2/ros2_ws/src/pathplanning/pathplanning/model 
+wget https://github.com/kestr31/PX4-SITL-Runner/releases/download/Resources/weight.onnx -O ~/Documents/A4VAI-PILS/ROS2/ros2_ws/src/pathplanning/pathplanning/model/weight.onnx 
+
 chmod -R o+wrx ~/Documents/A4VAI-PILS/ROS2/ros2_ws 
-./scripts/run.sh sim ros2 build ros2_ws 
-./scripts/run.sh sim ros2 stop 
-wget https://github.com/kestr31/PX4-SITL-Runner/releases/download/Resources/airsim.tar.gz -O ~/Documents/A4VAI-PILS/ROS2/airsim.tar.gz 
-wget https://github.com/kestr31/PX4-SITL-Runner/releases/download/Resources/px4_ros.tar.gz -O ~/Documents/A4VAI-PILS/ROS2/px4_ros.tar.gz 
-tar -zxvf ~/Documents/A4VAI-PILS/ROS2/airsim.tar.gz -C ~/Documents/A4VAI-PILS/ROS2 
-tar -zxvf ~/Documents/A4VAI-PILS/ROS2/px4_ros.tar.gz -C ~/Documents/A4VAI-PILS/ROS2 
-git clone https://github.com/dheera/rosboard.git -b v1.3.1 ~/Documents/A4VAI-PILS/ROS2/rosboard 
-wget https://github.com/kestr31/PX4-SITL-Runner/releases/download/Resources/GazeboDrone -O ~/Documents/A4VAI-PILS/Gazebo-Classic/GazeboDrone 
-chmod +x ~/Documents/A4VAI-PILS/Gazebo-Classic/GazeboDrone 
-wget https://github.com/kestr31/PX4-SITL-Runner/releases/download/Resources/settings.json -O ~/Documents/A4VAI-PILS/AirSim/settings.json
-
-
+./scripts/run.sh onboard ros2 make-tensorRT-engine.sh 
+./scripts/run.sh onboard ros2 build ros2_ws 
+./scripts/run.sh onboard ros2 stop 
+wget https://github.com/JOCIIIII/PX4-PILS-Runner/releases/download/Resources/px4_ros.onboard.tar -O ~/Documents/A4VAI-PILS/ROS2/px4_ros.tar.gz 
+tar -xvf ~/Documents/A4VAI-PILS/ROS2/px4_ros.tar.gz -C ~/Documents/A4VAI-PILS/ROS2 

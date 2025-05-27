@@ -43,15 +43,15 @@ CheckDirExists ${WORKSPACE_DIR}/ros2_ws/build/algorithm_test/algorithm_test/path
 touch ${WORKSPACE_DIR}/logs/node_MPPI_output.log
 touch ${WORKSPACE_DIR}/logs/node_att_ctrl.log
 touch ${WORKSPACE_DIR}/logs/algorithm_test.log
-touch ${WORKSPACE_DIR}/logs/plot.log
+# touch ${WORKSPACE_DIR}/logs/plot.log
 
-ros2 run plotter plot 2>&1 | tee ${WORKSPACE_DIR}/logs/plot.log &
+# ros2 run plotter plot 2>&1 | tee ${WORKSPACE_DIR}/logs/plot.log &
 ros2 run algorithm_test path_following_test 2>&1 | tee ${WORKSPACE_DIR}/logs/algorithm_test.log &
 ros2 run pathfollowing node_MPPI_output 2>&1 | tee ${WORKSPACE_DIR}/logs/node_MPPI_output.log &
 ros2 run pathfollowing node_att_ctrl 2>&1 | tee ${WORKSPACE_DIR}/logs/node_att_ctrl.log &
 
 # RUN ROSBOARD FOR ROS2 TOPIC VISUALIZATION
-${WORKSPACE_DIR}/rosboard/run
+# ${WORKSPACE_DIR}/rosboard/run
 
 # PLACE USER-DEFINED SHELL SCRIPTS/COMMANDS HERE
 # FOR EXAMPLE FOR RUNNING:
