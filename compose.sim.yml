@@ -292,6 +292,7 @@ services:
     devices:
       - ${DRI_DEVICE_CARD}
       - ${DRI_DEVICE_RENDER}
+      - /dev
     privileged: true
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     #
