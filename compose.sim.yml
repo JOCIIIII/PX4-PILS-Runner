@@ -8,9 +8,6 @@ networks:
 
 services:
   px4-env:
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # ------------STATIC VALUE DO NOT MODIFY-------------
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     image: ${PX4_ENV_IMAGE}
     container_name: ${PX4_ENV_CONTAINER}
     environment:
@@ -25,13 +22,13 @@ services:
       - ${X11_SOCKET_DIR}:${X11_SOCKET_DIR}
       - ${PILS_PULSEAUDIO_DIR}:/run/user/1000/pulse
       - ${PX4_WORKSPACE}:/home/user/workspace
+      - /dev:/dev
     hostname: ${PX4_ENV_CONTAINER}
     entrypoint: ${PX4_RUN_COMMAND}
     working_dir: /home/user/workspace
-    profiles: ["px4","gazebo-classic-pils","gazebo-classic-airsim-pils"]
+    # ★★★ 수정: gazebo-classic-airsim-pils 제거 ★★★
+    profiles: ["px4","gazebo-classic-pils"]
     env_file:
-      # - /home/merlin/Documents/A4VAI-PILS/envs/common.env
-      # - /home/merlin/Documents/A4VAI-PILS/envs/px4.env
       - path: ./envs/common.env
         required: true
       - path: ./envs/px4.env
@@ -39,31 +36,11 @@ services:
     networks:
       default:
         ipv4_address: ${PX4_IP}
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    #
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # --UNCOMMENT TO ENABLE AMD/INTEL GPU ACCELERATION---
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     devices:
       - ${DRI_DEVICE_CARD}
     privileged: true
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    #
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # ----UNCOMMENT TO ENABLE NVIDIA GPU ACCELERATION----
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: 1
-    #           capabilities: [gpu]
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
   gz-sim:
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # ------------STATIC VALUE DO NOT MODIFY-------------
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     image: ${GAZEBO_CLASSIC_ENV_IMAGE}
     container_name: ${GAZEBO_CLASSIC_ENV_CONTAINER}
     environment:
@@ -86,39 +63,19 @@ services:
         required: true
       - path: ./envs/px4.env
         required: true
-    networks:
-      default:
-        ipv4_address: ${GAZEBO_CLASSIC_IP}
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    #
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # --UNCOMMENT TO ENABLE AMD/INTEL GPU ACCELERATION---
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    network_mode: "host"
     devices:
       - ${DRI_DEVICE_CARD}
     privileged: true
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # ----UNCOMMENT TO ENABLE NVIDIA GPU ACCELERATION----
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: 1
-    #           capabilities: [gpu]
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
   gz-sim-airsim:
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # ------------STATIC VALUE DO NOT MODIFY-------------
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     image: ${GAZEBO_CLASSIC_ENV_IMAGE}
     container_name: ${GAZEBO_CLASSIC_ENV_CONTAINER}
     environment:
       DISPLAY:                    ${PILS_DISPLAY}
       WAYLAND_DISPLAY:            ${PILS_WAYLAND_DISPLAY}
       XDG_RUNTIME_DIR:            ${XDG_RUNTIME_DIR}
-      AIRSIM_IP:                  ${AIRSIM_IP}
+      AIRSIM_IP:                  127.0.0.1  # ★ localhost로 변경
     volumes:
       - ${X11_SOCKET_DIR}:${X11_SOCKET_DIR}
       - ${PILS_PULSEAUDIO_DIR}:/run/user/1000/pulse
@@ -136,32 +93,13 @@ services:
         required: true
       - path: ./envs/px4.env
         required: true
-    networks:
-      default:
-        ipv4_address: ${GAZEBO_CLASSIC_IP}
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    #
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # --UNCOMMENT TO ENABLE AMD/INTEL GPU ACCELERATION---
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # ★★★ host 네트워크로 변경 ★★★
+    network_mode: "host"
     devices:
       - ${DRI_DEVICE_CARD}
     privileged: true
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # ----UNCOMMENT TO ENABLE NVIDIA GPU ACCELERATION----
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: 1
-    #           capabilities: [gpu]
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
   airsim-binary:
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # ------------STATIC VALUE DO NOT MODIFY-------------
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     image:            ${AIRSIM_BINARY_IMAGE}
     container_name:   ${AIRSIM_BINARY_CONTAINER}
     user:             root
@@ -182,23 +120,11 @@ services:
         required: true
       - path: ./envs/airsim.env
         required: true
-    networks:
-      default:
-        ipv4_address: ${AIRSIM_IP}
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    #
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # --UNCOMMENT TO ENABLE AMD/INTEL GPU ACCELERATION---
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # ★★★ host 네트워크로 변경 (포트 매핑 불필요) ★★★
+    network_mode: "host"
     devices:
       - ${DRI_DEVICE_CARD}
     privileged: true
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    #
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # ----UNCOMMENT TO ENABLE NVIDIA GPU ACCELERATION----
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     deploy:
       resources:
         reservations:
@@ -206,20 +132,18 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
   ros2-env-airsim:
     image: ${ROS2_ENV_IMAGE}
     container_name: ${ROS2_ENV_CONTAINER}
+    user: root
     environment:
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # ------------STATIC VALUE DO NOT MODIFY-------------
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       DISPLAY:                    ${PILS_DISPLAY}
       WAYLAND_DISPLAY:            ${PILS_WAYLAND_DISPLAY}
       XDG_RUNTIME_DIR:            ${XDG_RUNTIME_DIR}
       ROS_DOMAIN_ID:              ${ROS_DOMAIN_ID}
-      PX4_IP:                     ${PX4_IP}
-      AIRSIM_IP:                  ${AIRSIM_IP}
+      PX4_IP:                     127.0.0.1  # ★ localhost
+      AIRSIM_IP:                  127.0.0.1  # ★ localhost
     volumes:
       - ${X11_SOCKET_DIR}:${X11_SOCKET_DIR}
       - ${PILS_PULSEAUDIO_DIR}:/run/user/1000/pulse
@@ -234,34 +158,23 @@ services:
         required: true
       - path: ./envs/ros2.sim.env
         required: true
-    networks:
-      default:
-        ipv4_address: ${ROS2_SIM_IP}
+    # ★★★ host 네트워크 모드 유지 ★★★
+    network_mode: "host"
     ports:
-      - 8890:8888
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    #
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # --UNCOMMENT TO ENABLE AMD/INTEL GPU ACCELERATION---
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+      - "8890:8888"
     devices:
       - /dev/dri/card0
     privileged: true
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # ----UNCOMMENT TO ENABLE NVIDIA GPU ACCELERATION----
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    # ★★★ 필요시 NVIDIA GPU 활성화 ★★★
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
   qgc-app:
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # ------------STATIC VALUE DO NOT MODIFY-------------
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     image: ${QGC_ENV_IMAGE}
     container_name: ${QGC_ENV_CONTAINER}
     environment:
@@ -281,29 +194,8 @@ services:
         required: true
       - path: ./envs/qgc.env
         required: true
-    networks:
-      default:
-        ipv4_address: ${QGC_IP}
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    #
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # --UNCOMMENT TO ENABLE AMD/INTEL GPU ACCELERATION---
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    network_mode: "host"
     devices:
       - ${DRI_DEVICE_CARD}
       - ${DRI_DEVICE_RENDER}
-      - /dev
     privileged: true
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    #
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # ----UNCOMMENT TO ENABLE NVIDIA GPU ACCELERATION----
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: 1
-    #           capabilities: [gpu]
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
