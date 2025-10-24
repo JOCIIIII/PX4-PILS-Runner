@@ -14,7 +14,7 @@ BASE_DIR=$(dirname $(readlink -f "$0"))
 for file in ${BASE_DIR}/include/*.sh; do
     source ${file}
 done
-# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 # MAIN STATEMENTS
@@ -24,7 +24,8 @@ done
 
 CheckDirExists "PX4-Autopilot" git https://github.com/PX4/PX4-Autopilot.git ${PX4_VERSION}
 
+# PILS 브랜치 지정
 CheckDirExists "A4VAI-Custom-PX4-File" git https://github.com/JOCIIIII/A4VAI-Custom-PX4-File.git
 
 chmod -R o+rwx $(dirname "$BASE_DIR")
-# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
