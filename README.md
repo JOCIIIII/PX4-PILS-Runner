@@ -11,7 +11,7 @@
 
 ## Documentation
 
-- Please refer to the [repository wiki](https://github.com/jociiii/PX4-PILS-Runner/wiki) for detailed documentation.
+- Please refer to the [repository wiki](https://github.com/JOCIIIII/PX4-PILS-Runner/wiki) for detailed documentation.
 
 ## Prerequisites
 
