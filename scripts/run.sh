@@ -140,8 +140,7 @@ if [ "$1x" == "simx" ]; then
             EchoYellow "[$(basename "$0")] THIS FEATURE IS FOR CONVENIENCE."
             EchoYellow "[$(basename "$0")] IT IS RECOMMENDED TO USE stop.sh SCRIPT TO STOP THE CONTAINER."
 
-            ${BASE_DIR}/stop.sh $1 $2
-            ssh -X a4vai@192.168.50.2 ./PX4-PILS-Runner/scripts/run.sh onboard ros2 stop
+#             ${BASE_DIR}/stop.sh $1 $2
             exit 0
         # ACTION: debug. SET CONTAINERS IN DEBUG MODE
         elif [ "$3x" == "debugx" ]; then
@@ -180,17 +179,42 @@ if [ "$1x" == "simx" ]; then
                 done
             fi
 
-            SetRunModePX4 $0 gazebo-classic-airsim-sitl
             SetRunModeGazeboClassic $0 gazebo-classic-airsim-sitl
             SetRunModeAirSim $0 gazebo-classic-airsim-pils
             SetRunModeROS2 $0 $1 gazebo-classic-airsim-pils
             SetRunModeQGC $0 normal
-        # ACTION: run. RUN THE PX4-GAZEBO-CLASSIC-AIRSIM PILS SIMULATION
+                # ACTION: run. RUN THE PX4-GAZEBO-CLASSIC-AIRSIM PILS SIMULATION
         elif [ "$3x" == "runx" ]; then
-            # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
-            LimitNumArgument $0 3 "$@"
+            # 4번째 인자로 모델 선택 (기본값: iris)
+            if [ $# -ge 4 ]; then
+                MODEL=$4
+                # 5번째 인자부터는 허용 안 함
+                if [ $# -gt 4 ]; then
+                    EchoRed "[$(basename "$0")] [ARGUMENT CHECK]"
+                    EchoRed "[$(basename "$0")] TOO MANY ARGUMENTS. USAGE: run [iris|s2000]"
+                    exit 1
+                fi
+            else
+                MODEL="iris"  # 기본값
+            fi
 
-            SetRunModePX4 $0 gazebo-classic-airsim-sitl
+            # 모델 검증
+            if [ "${MODEL}x" != "irisx" ] && [ "${MODEL}x" != "s2000x" ]; then
+                EchoRed "[$(basename "$0")] INVALID MODEL \"${MODEL}\". USE 'iris' OR 's2000'"
+                exit 1
+            fi
+
+            EchoGreen "[$(basename "$0")] SELECTED MODEL: ${MODEL}"
+
+            # 환경변수 설정
+            if [ "${MODEL}x" == "irisx" ]; then
+                sed -i "s~PILS_AIRFRAME=\"\"~PILS_AIRFRAME=\"iris_hitl\"~g" ${PILS_ENV_DIR}/gazebo-classic.env
+                sed -i "s~PILS_WORLD=\"\"~PILS_WORLD=\"hitl_iris\"~g" ${PILS_ENV_DIR}/gazebo-classic.env
+            elif [ "${MODEL}x" == "s2000x" ]; then
+                sed -i "s~PILS_AIRFRAME=\"\"~PILS_AIRFRAME=\"s2000_hitl\"~g" ${PILS_ENV_DIR}/gazebo-classic.env
+                sed -i "s~PILS_WORLD=\"\"~PILS_WORLD=\"hitl_s2000\"~g" ${PILS_ENV_DIR}/gazebo-classic.env
+            fi
+
             SetRunModeGazeboClassic $0 gazebo-classic-airsim-sitl
             SetRunModeAirSim $0 gazebo-classic-airsim-pils
             SetRunModeROS2 $0 $1 gazebo-classic-airsim-pils
@@ -214,7 +238,7 @@ if [ "$1x" == "simx" ]; then
                 usageState5["path-planning"]="RUN PATH PLANNING TEST"
                 usageState5["path-following"]="RUN PATH FOLLOWING TEST"
                 usageState5["collision-avoidance"]="RUN COLLISION AVOIDANCE TEST"
-                
+
                 CheckValidity $0 usageState5 5 "$@"
                 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -223,27 +247,22 @@ if [ "$1x" == "simx" ]; then
                     LimitNumArgument $0 5 "$@"
 
                     SetRunModeROS2 $0 $1 gazebo-classic-airsim-pils
-                    ssh -X a4vai@192.168.50.2 './PX4-PILS-Runner/scripts/run.sh onboard ros2 unit-test path-planning& > /dev/null 2>&1 &'
                 elif [ "$5x" == "path-followingx" ]; then
                     # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
                     LimitNumArgument $0 5 "$@"
 
-                    SetRunModePX4 $0 gazebo-classic-airsim-sitl
                     SetRunModeGazeboClassic $0 gazebo-classic-airsim-sitl
                     SetRunModeAirSim $0 gazebo-classic-airsim-pils
                     SetRunModeROS2 $0 $1 ros-util-package.sh
                     SetRunModeQGC $0 normal
-                    ssh -X a4vai@192.168.50.2 './PX4-PILS-Runner/scripts/run.sh onboard ros2 unit-test path-following > /dev/null 2>&1 &'
                 elif [ "$5x" == "collision-avoidancex" ]; then
                     # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
                     LimitNumArgument $0 5 "$@"
 
-                    SetRunModePX4 $0 gazebo-classic-airsim-sitl
                     SetRunModeGazeboClassic $0 gazebo-classic-airsim-sitl
                     SetRunModeAirSim $0 gazebo-classic-airsim-pils
                     SetRunModeROS2 $0 $1 gazebo-classic-airsim-pils
                     SetRunModeQGC $0 normal
-                    ssh -X a4vai@192.168.50.2 './PX4-PILS-Runner/scripts/run.sh onboard ros2 unit-test collision-avoidance& > /dev/null 2>&1 &'
                 fi
             elif [ "$4x" == "integration-testx" ]; then
                 # INPUT STATEMENT 4 VALIDITY CHECK
@@ -257,15 +276,13 @@ if [ "$1x" == "simx" ]; then
 
                 if [ "$5x" == "pp-pf-integrationx" ]; then
                     # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
-                    SetRunModePX4 $0 gazebo-classic-airsim-sitl
                     SetRunModeGazeboClassic $0 gazebo-classic-airsim-sitl
                     SetRunModeAirSim $0 gazebo-classic-airsim-pils
                     SetRunModeROS2 $0 $1 ros-util-package.sh
                     SetRunModeQGC $0 normal
-                    ssh -X a4vai@192.168.50.2 './PX4-PILS-Runner/scripts/run.sh onboard ros2 integration-test pp-pf-integration > /dev/null 2>&1 &' 
+                    ssh -X a4vai@192.168.50.2 './PX4-PILS-Runner/scripts/run.sh onboard ros2 integration-test pp-pf-integration > /dev/null 2>&1 &'
                 elif [ "$5x" == "pf-ca-integrationx" ]; then
                     # DO NOT ALLOW ADDITIONAL ARGUMENTS FOR THIS ACTION
-                    SetRunModePX4 $0 gazebo-classic-airsim-sitl
                     SetRunModeGazeboClassic $0 gazebo-classic-airsim-sitl
                     SetRunModeAirSim $0 gazebo-classic-airsim-pils
                     SetRunModeROS2 $0 $1 ros-util-package.sh
@@ -331,7 +348,7 @@ if [ "$1x" == "simx" ]; then
         usageState3["sitl-px4"]="RUN PX4-AUTOPILOT SITL IN GAZEBO-CLASSIC"
         usageState3["debug"]="RUN GAZEBO-CLASSIC CONTAINER IN DEBUG MODE (sleep infinity)"
         usageState3["stop"]="STOP GAZEBO-CLASSIC CONTAINER IF IT IS RUNNING"
-    
+
         CheckValidity $0 usageState3 3 "$@"
         # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -367,7 +384,7 @@ if [ "$1x" == "simx" ]; then
         usageState3["stop"]="STOP AIRSIM CONTAINER IF IT IS RUNNING"
         usageState3["auto"]="RUN AIRSIM CONTAINER IN AUTO MODE (run .sh file in /home/ue4/workspace/binary)"
         usageState3["*.sh"]="RUN AIRSIM CONTAINER IN MANUAL MODE (run specific .sh file)"
-    
+
         CheckValidity $0 usageState3 3 "$@"
         # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -408,7 +425,7 @@ if [ "$1x" == "simx" ]; then
         usageState3["stop"]="STOP ROS2 CONTAINER IF IT IS RUNNING"
         usageState3["build"]="BUILD ROS2 PACKAGES INSIDE THE CONTAINER (TARGET_WORKSPACE(S) IS(ARE) OPTIONAL)"
         usageState3["*.sh"]="RUN ROS2 CONTAINER IN MANUAL MODE (run specific shell script)"
-    
+
         CheckValidity $0 usageState3 3 "$@"
         # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -454,7 +471,7 @@ if [ "$1x" == "simx" ]; then
         usageState3["debug"]="RUN QGroundControl CONTAINER IN DEBUG MODE (sleep infinity)"
         usageState3["stop"]="STOP QGroundControl CONTAINER IF IT IS RUNNING"
         usageState3["run"]="RUN QGroundControl CONTAINER IN NORMAL MODE"
-    
+
         CheckValidity $0 usageState3 3 "$@"
         # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
